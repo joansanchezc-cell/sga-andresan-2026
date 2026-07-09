@@ -12,3 +12,4 @@ html new app.html
 # *.csv
 
 .vercel
+.env*
