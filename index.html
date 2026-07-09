@@ -319,6 +319,10 @@
       background: #0891b2;
     }
 
+    .tab-pend.active {
+      background: #f97316;
+    }
+
     /* ── Secciones ── */
     .app-body {
       padding: 12px;
@@ -1559,6 +1563,72 @@
       border: 1px solid var(--border-glass) !important;
     }
 
+    .sb-nav-item.tab-pend.active {
+      background: rgba(249, 115, 22, 0.18) !important;
+      color: #fb923c !important;
+      border: 1px solid rgba(249,115,22,0.3) !important;
+    }
+
+    /* ── Tarjetas Pendientes ── */
+    .pend-student-card {
+      background: var(--bg-card, #fff);
+      border-radius: 12px;
+      border: 1px solid var(--border-glass, #e5e7eb);
+      margin-bottom: 10px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .pend-student-card:hover { box-shadow: 0 4px 14px rgba(249,115,22,0.15); }
+    .pend-student-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .pend-student-name { font-size: 14px; font-weight: 600; }
+    .pend-student-idx  { font-size: 12px; color: #9ca3af; margin-right: 10px; min-width: 20px; text-align: center; }
+    .pend-badge {
+      background: #fef3c7; color: #92400e;
+      border-radius: 20px; font-size: 12px; font-weight: 700;
+      padding: 3px 10px; white-space: nowrap;
+    }
+    .pend-badge.np-badge { background: #fee2e2; color: #991b1b; }
+    .pend-acts-list {
+      padding: 0 16px 12px;
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .pend-act-tag {
+      background: #fff7ed; border: 1px solid #fed7aa;
+      color: #9a3412; border-radius: 8px;
+      font-size: 11px; font-weight: 600; padding: 4px 10px;
+    }
+    .pend-act-tag.np { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    .pend-asig-label {
+      font-size: 10px; font-weight: 700; color: #6b7280;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 0 16px 4px; margin-top: 4px;
+    }
+    .pend-summary-bar {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      padding: 10px 16px 14px;
+      border-top: 1px solid rgba(249,115,22,0.15);
+      background: #fff7ed;
+      font-size: 12px; color: #9a3412;
+    }
+    .pend-stats-box {
+      background: var(--bg-card, #fff);
+      border-radius: 12px;
+      border: 1px solid rgba(249,115,22,0.25);
+      padding: 14px 20px;
+      margin-bottom: 14px;
+      display: flex; gap: 24px; flex-wrap: wrap; align-items: center;
+    }
+    .pend-stat { text-align: center; }
+    .pend-stat-num { font-size: 26px; font-weight: 800; color: #f97316; }
+    .pend-stat-lbl { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
     .card-notas h3 {
       color: var(--notas-light) !important;
       border-left-color: var(--notas-light) !important;
@@ -1651,6 +1721,7 @@
           style="display:none;"><span>✅</span> Asistencia</button>
         <button class="sb-nav-item tab tab-res"
           onclick="tab('resumen', this); if(gRes) selRes(gRes); closeSidebar()"><span>📊</span> Resumen</button>
+        <button class="sb-nav-item tab tab-pend" onclick="tab('pendientes', this); cargarPendientes(); closeSidebar()"><span>⚠️</span> Pendientes</button>
 
         <div class="sb-section-title" style="margin-top: 15px;">GESTIÓN ACADÉMICA</div>
         <button class="sb-nav-item tab tab-ing" onclick="tab('ingreso', this); closeSidebar()"><span>✏️</span> Ingreso
@@ -1755,6 +1826,24 @@
             <div id="pills-res"></div>
           </div>
           <div id="p-res"></div>
+        </div>
+
+        <!-- ── PENDIENTES ── -->
+        <div id="s-pendientes" class="sec">
+          <div class="card" style="border-left:4px solid #f97316; margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <span style="font-size:32px">⚠️</span>
+              <div>
+                <h3 style="margin:0;border:none;padding:0;color:#f97316">Actividades Pendientes</h3>
+                <p style="margin:4px 0 0;font-size:13px;color:#6b7280">Estudiantes con actividades sin nota o con NP (0)</p>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+              <span style="font-size:13px;font-weight:600;color:#374151">Selecciona un grado:</span>
+              <div id="pills-pend"></div>
+            </div>
+          </div>
+          <div id="p-pendientes"></div>
         </div>
 
         <!-- ── INGRESO ── -->
@@ -1918,6 +2007,7 @@
         <button class="bn-item tab-notas active" onclick="tab('notas', this)"><span>📝</span>Notas</button>
         <button class="bn-item tab-res"
           onclick="tab('resumen', this); if(gRes) selRes(gRes)"><span>📊</span>Resumen</button>
+        <button class="bn-item tab-pend" onclick="tab('pendientes', this); cargarPendientes()"><span>⚠️</span>Pendientes</button>
         <button class="bn-item tab-ing" onclick="tab('ingreso', this)"><span>✏️</span>Ingreso</button>
         <button class="bn-item tab-act" onclick="tab('actividades', this)"><span>📋</span>Actividades</button>
         <button class="bn-item tab-est" onclick="tab('estudiantes', this)"><span>👥</span>Estudiantes</button>
@@ -2333,6 +2423,162 @@
       document.getElementById('p-notas').innerHTML = html;
       badge('ok', `Listo ✓ (${acts.length} actividades)`);
     }
+    // ════════════════════════════════════════════════════════
+    // TAB PENDIENTES — resumen de actividades sin nota o NP
+    // ════════════════════════════════════════════════════════
+    let gPend = null;
+
+    function cargarPendientes() {
+      const grados = [...new Set(DB.ests.map(e => e.grado))].sort();
+      renderPills('pills-pend', grados, 'pend', selPend);
+      document.getElementById('p-pendientes').innerHTML =
+        `<div style="text-align:center;padding:40px;color:#9ca3af;font-size:14px">Selecciona un grado para ver los pendientes.</div>`;
+      gPend = null;
+    }
+
+    async function selPend(grado) {
+      gPend = grado;
+      const contenedor = document.getElementById('p-pendientes');
+      contenedor.innerHTML = `<div style="text-align:center;padding:40px;color:#9ca3af;font-size:14px">Cargando pendientes…</div>`;
+
+      const ests  = DB.ests.filter(e => e.grado === grado).sort((a,b)=> a.nombre_completo.localeCompare(b.nombre_completo));
+      const asigs = DB.asigs.filter(a => a.grado === grado);
+      const actIds = [];
+      const actsByAsig = {}; // asigId -> [act]
+
+      asigs.forEach(asig => {
+        const acts = DB.acts.filter(a => a.asignatura_id === asig.id);
+        actsByAsig[asig.id] = acts;
+        acts.forEach(a => actIds.push(a.id));
+      });
+
+      if (!actIds.length) {
+        contenedor.innerHTML = `<div style="text-align:center;padding:40px;color:#9ca3af">No hay actividades creadas para el grado <strong>${grado}</strong>.</div>`;
+        return;
+      }
+
+      // Consultar notas existentes para este grado/año/periodo
+      const { data: notas, error } = await sb.from('notas')
+        .select('estudiante_id, actividad_id, valor')
+        .in('actividad_id', actIds)
+        .eq('año', anio)
+        .eq('periodo', periodo);
+
+      if (error) {
+        contenedor.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444">Error al cargar datos: ${error.message}</div>`;
+        return;
+      }
+
+      // Mapa: "estId_actId" -> valor
+      const nMap = {};
+      (notas || []).forEach(n => {
+        nMap[`${n.estudiante_id}_${n.actividad_id}`] = Number(n.valor);
+      });
+
+      // Calcular pendientes por estudiante
+      let totalEstConPend = 0;
+      let totalPendientes = 0;
+      let totalNP = 0;
+
+      const estudiantesPend = ests.map(est => {
+        const pendsPorAsig = []; // [{asig, actsP:[{act,tipo}]}]
+        asigs.forEach(asig => {
+          const acts = actsByAsig[asig.id] || [];
+          const actsP = [];
+          acts.forEach(act => {
+            const key = `${est.id}_${act.id}`;
+            const val = nMap[key];
+            if (val === undefined || val === null) {
+              actsP.push({ act, tipo: 'sin-nota' });
+            } else if (val === 0) {
+              actsP.push({ act, tipo: 'np' });
+            }
+          });
+          if (actsP.length) pendsPorAsig.push({ asig, actsP });
+        });
+        const total = pendsPorAsig.reduce((s, p) => s + p.actsP.length, 0);
+        const npCount = pendsPorAsig.reduce((s, p) => s + p.actsP.filter(a => a.tipo === 'np').length, 0);
+        if (total > 0) {
+          totalEstConPend++;
+          totalPendientes += total;
+          totalNP += npCount;
+        }
+        return { est, pendsPorAsig, total, npCount };
+      }).filter(e => e.total > 0);
+
+      if (!estudiantesPend.length) {
+        contenedor.innerHTML = `<div style="text-align:center;padding:40px">
+          <div style="font-size:48px;margin-bottom:12px">🎉</div>
+          <div style="font-size:16px;font-weight:700;color:#059669">¡Sin pendientes!</div>
+          <div style="font-size:13px;color:#6b7280;margin-top:6px">Todos los estudiantes del grado <strong>${grado}</strong> tienen sus actividades al día.</div>
+        </div>`;
+        return;
+      }
+
+      // Estadísticas resumen
+      let html = `<div class="pend-stats-box">
+        <div class="pend-stat">
+          <div class="pend-stat-num">${totalEstConPend}</div>
+          <div class="pend-stat-lbl">Estudiantes<br>con pendientes</div>
+        </div>
+        <div style="width:1px;background:#e5e7eb;align-self:stretch"></div>
+        <div class="pend-stat">
+          <div class="pend-stat-num">${totalPendientes}</div>
+          <div class="pend-stat-lbl">Actividades<br>pendientes total</div>
+        </div>
+        <div style="width:1px;background:#e5e7eb;align-self:stretch"></div>
+        <div class="pend-stat">
+          <div class="pend-stat-num" style="color:#ef4444">${totalNP}</div>
+          <div class="pend-stat-lbl">Con NP<br>(nota 0)</div>
+        </div>
+        <div style="margin-left:auto;font-size:12px;color:#6b7280;align-self:center">
+          Grado: <strong>${grado}</strong> · ${anio} · Periodo ${periodo}
+        </div>
+      </div>`;
+
+      // Tarjeta por estudiante
+      estudiantesPend.forEach((item, idx) => {
+        const { est, pendsPorAsig, total, npCount } = item;
+        const sinNota = total - npCount;
+        const badgeClass = npCount > 0 ? 'np-badge' : '';
+        const badgeText = npCount > 0
+          ? `${total} pendiente${total>1?'s':''} · ${npCount} NP`
+          : `${total} sin nota`;
+
+        html += `<div class="pend-student-card">
+          <div class="pend-student-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="pend-student-idx">${idx+1}</span>
+              <span class="pend-student-name">${est.nombre_completo}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="pend-badge ${badgeClass}">${badgeText}</span>
+              <span style="font-size:12px;color:#9ca3af">▼</span>
+            </div>
+          </div>
+          <div>`;
+
+        // Por asignatura
+        pendsPorAsig.forEach(({ asig, actsP }) => {
+          html += `<div class="pend-asig-label">📚 ${asig.nombre} (${asig.codigo})</div>`;
+          html += `<div class="pend-acts-list">`;
+          actsP.forEach(({ act, tipo }) => {
+            const cls = tipo === 'np' ? 'np' : '';
+            const icon = tipo === 'np' ? '🔴 ' : '⬜ ';
+            html += `<span class="pend-act-tag ${cls}" title="${tipo === 'np' ? 'Nota 0 (NP)' : 'Sin nota registrada'}">${icon}${act.nombre}</span>`;
+          });
+          html += `</div>`;
+        });
+
+        html += `<div class="pend-summary-bar">`;
+        if (sinNota > 0) html += `<span>⬜ ${sinNota} sin nota</span>`;
+        if (npCount > 0) html += `<span style="color:#991b1b">🔴 ${npCount} con NP (nota 0)</span>`;
+        html += `</div></div></div>`;
+      });
+
+      contenedor.innerHTML = html;
+    }
+
     // ════════════════════════════════════════════════════════
     // TAB ASISTENCIA — sin selector de grupo, horario del día completo
     // ════════════════════════════════════════════════════════
