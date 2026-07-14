@@ -4561,13 +4561,19 @@ Le informamos que su acudido tiene actividades pendientes de entrega o registrad
                 margin: 0; 
               }
               .header {
-                text-align: center;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
                 margin-bottom: 20px;
                 border-bottom: 2px solid #e5e7eb;
                 padding-bottom: 10px;
               }
-              .header h2 { margin: 0; color: #111827; font-size: 20px; font-weight: 800; }
-              .header p { margin: 4px 0 0 0; font-size: 13px; color: #6b7280; font-weight: 600; text-transform: uppercase; }
+              .header-title {
+                text-align: center;
+                flex: 1;
+              }
+              .header-title h2 { margin: 0; color: #111827; font-size: 20px; font-weight: 800; }
+              .header-title p { margin: 4px 0 0 0; font-size: 13px; color: #6b7280; font-weight: 600; text-transform: uppercase; }
               table {
                 width: 100%;
                 border-collapse: collapse;
@@ -4589,16 +4595,20 @@ Le informamos que su acudido tiene actividades pendientes de entrega o registrad
           </head>
           <body>
             <div class="header">
-              <h2>Planilla de Control de Actividades Pendientes</h2>
-              <p>Grado: ${gPend} | Año: ${anio} | Periodo: ${periodo}</p>
+              <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/andresanbordes.png" style="height:45px; object-fit:contain; width:120px; object-position:left;" alt="Logo Andrésán">
+              <div class="header-title">
+                <h2>Planilla de Control de Actividades Pendientes</h2>
+                <p>Grado: ${gPend} | Año: ${anio} | Periodo: ${periodo}</p>
+              </div>
+              <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/andresanbordes.png" style="height:45px; object-fit:contain; width:120px; object-position:right;" alt="Escudo Colegio">
             </div>
             <table>
               <thead>
                 <tr>
                   <th style="width:5%;text-align:center">No.</th>
-                  <th style="width:40%">Estudiante</th>
+                  <th style="width:40%;text-align:left">Estudiante</th>
                   <th style="width:15%;text-align:center">Act. Pendientes</th>
-                  <th style="width:40%">Firma Padre/Acudiente</th>
+                  <th style="width:40%;text-align:left">Firma Padre/Acudiente</th>
                 </tr>
               </thead>
               <tbody>
@@ -4608,9 +4618,9 @@ Le informamos que su acudido tiene actividades pendientes de entrega o registrad
           printHtml += `
                 <tr>
                   <td style="text-align:center">${index + 1}</td>
-                  <td style="font-weight:600">${item.est.nombre_completo}</td>
+                  <td style="text-align:left;font-weight:600">${item.est.nombre_completo}</td>
                   <td style="text-align:center;font-weight:700;color:#dc2626">${item.total}</td>
-                  <td></td>
+                  <td style="text-align:left"></td>
                 </tr>
           `;
         });
@@ -4618,9 +4628,9 @@ Le informamos que su acudido tiene actividades pendientes de entrega o registrad
         printHtml += `
               </tbody>
             </table>
-            <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; color: #6b7280;">
-              <div>Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}</div>
-              <div>Control Notas - Profesor Andresan</div>
+            <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; align-items: flex-end;">
+              <div>Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}<br>Control Notas - Profesor Andresan</div>
+              <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/andresanbordes.png" style="height: 35px; object-fit: contain;">
             </div>
           </body>
           </html>
