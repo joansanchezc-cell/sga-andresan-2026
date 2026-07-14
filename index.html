@@ -1566,7 +1566,7 @@
     .sb-nav-item.tab-pend.active {
       background: rgba(249, 115, 22, 0.18) !important;
       color: #fb923c !important;
-      border: 1px solid rgba(249,115,22,0.3) !important;
+      border: 1px solid rgba(249, 115, 22, 0.3) !important;
     }
 
     /* ── Tarjetas Pendientes ── */
@@ -1578,7 +1578,11 @@
       overflow: hidden;
       transition: box-shadow 0.2s;
     }
-    .pend-student-card:hover { box-shadow: 0 4px 14px rgba(249,115,22,0.15); }
+
+    .pend-student-card:hover {
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.15);
+    }
+
     .pend-student-header {
       display: flex;
       align-items: center;
@@ -1587,47 +1591,107 @@
       cursor: pointer;
       user-select: none;
     }
-    .pend-student-name { font-size: 14px; font-weight: 600; text-align: left; }
-    .pend-student-idx  { font-size: 12px; color: #9ca3af; margin-right: 10px; min-width: 20px; text-align: center; }
-    .pend-badge {
-      background: #fef3c7; color: #92400e;
-      border-radius: 20px; font-size: 12px; font-weight: 700;
-      padding: 3px 10px; white-space: nowrap;
+
+    .pend-student-name {
+      font-size: 14px;
+      font-weight: 600;
+      text-align: left;
     }
-    .pend-badge.np-badge { background: #fee2e2; color: #991b1b; }
+
+    .pend-student-idx {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-right: 10px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .pend-badge {
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      white-space: nowrap;
+    }
+
+    .pend-badge.np-badge {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
     .pend-acts-list {
       padding: 0 16px 12px;
-      display: flex; flex-wrap: wrap; gap: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
+
     .pend-act-tag {
-      background: #fff7ed; border: 1px solid #fed7aa;
-      color: #9a3412; border-radius: 8px;
-      font-size: 11px; font-weight: 600; padding: 4px 10px;
-    }
-    .pend-act-tag.np { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
-    .pend-asig-label {
-      font-size: 10px; font-weight: 700; color: #6b7280;
-      text-transform: uppercase; letter-spacing: 0.05em;
-      padding: 0 16px 4px; margin-top: 4px;
-    }
-    .pend-summary-bar {
-      display: flex; gap: 12px; flex-wrap: wrap;
-      padding: 10px 16px 14px;
-      border-top: 1px solid rgba(249,115,22,0.15);
       background: #fff7ed;
-      font-size: 12px; color: #9a3412;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
     }
+
+    .pend-act-tag.np {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
+
+    .pend-asig-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0 16px 4px;
+      margin-top: 4px;
+    }
+
+    .pend-summary-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 10px 16px 14px;
+      border-top: 1px solid rgba(249, 115, 22, 0.15);
+      background: #fff7ed;
+      font-size: 12px;
+      color: #9a3412;
+    }
+
     .pend-stats-box {
       background: var(--bg-card, #fff);
       border-radius: 12px;
-      border: 1px solid rgba(249,115,22,0.25);
+      border: 1px solid rgba(249, 115, 22, 0.25);
       padding: 14px 20px;
       margin-bottom: 14px;
-      display: flex; gap: 24px; flex-wrap: wrap; align-items: center;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: center;
     }
-    .pend-stat { text-align: center; }
-    .pend-stat-num { font-size: 26px; font-weight: 800; color: #f97316; }
-    .pend-stat-lbl { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+    .pend-stat {
+      text-align: center;
+    }
+
+    .pend-stat-num {
+      font-size: 26px;
+      font-weight: 800;
+      color: #f97316;
+    }
+
+    .pend-stat-lbl {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
 
     .card-notas h3 {
       color: var(--notas-light) !important;
@@ -1722,7 +1786,8 @@
           style="display:none;"><span>✅</span> Asistencia</button>
         <button class="sb-nav-item tab tab-res"
           onclick="tab('resumen', this); if(gRes) selRes(gRes); closeSidebar()"><span>📊</span> Resumen</button>
-        <button class="sb-nav-item tab tab-pend" onclick="tab('pendientes', this); cargarPendientes(); closeSidebar()"><span>⚠️</span> Pendientes</button>
+        <button class="sb-nav-item tab tab-pend"
+          onclick="tab('pendientes', this); cargarPendientes(); closeSidebar()"><span>⚠️</span> Pendientes</button>
 
         <div class="sb-section-title" style="margin-top: 15px;">GESTIÓN ACADÉMICA</div>
         <button class="sb-nav-item tab tab-ing" onclick="tab('ingreso', this); closeSidebar()"><span>✏️</span> Ingreso
@@ -1738,7 +1803,9 @@
       </div>
       <div class="sb-footer">
         <div class="sb-profile-card">
-          <img class="sb-profile-avatar" id="sb-user-avatar" src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/logo%20vectorizado.png" style="background: transparent; object-fit: contain; padding: 2px;" alt="Avatar">
+          <img class="sb-profile-avatar" id="sb-user-avatar"
+            src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/logo%20vectorizado.png"
+            style="background: transparent; object-fit: contain; padding: 2px;" alt="Avatar">
           <div class="sb-profile-info">
             <div id="sb-user-lbl"
               style="font-weight: 600; color: #fff; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -1832,20 +1899,30 @@
         <!-- ── PENDIENTES ── -->
         <div id="s-pendientes" class="sec" style="text-align:left">
           <div class="card" style="border-left:4px solid #f97316; margin-bottom:12px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+            <div
+              style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px">
               <div style="display:flex;align-items:center;gap:12px;">
                 <span style="font-size:32px">⚠️</span>
                 <div>
                   <h3 style="margin:0;border:none;padding:0;color:#f97316">Actividades Pendientes</h3>
-                  <p style="margin:4px 0 0;font-size:13px;color:#6b7280">Estudiantes con actividades sin nota o con NP (0)</p>
+                  <p style="margin:4px 0 0;font-size:13px;color:#6b7280">Estudiantes con actividades sin nota o con NP
+                    (0)</p>
                 </div>
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn" style="background:#059669;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px" onclick="descargarPendientesExcel()">📥 Descargar Excel (Todos)</button>
-                <button id="btn-print-pend" class="btn" style="background:#4f46e5;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:none;align-items:center;gap:6px" onclick="imprimirInformesPendientes()">🖨️ Imprimir Volantes (Este grado)</button>
+                <button class="btn"
+                  style="background:#059669;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px"
+                  onclick="descargarPendientesExcel()">📥 Descargar Excel (Todos)</button>
+                <button id="btn-print-pend" class="btn"
+                  style="background:#4f46e5;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:none;align-items:center;gap:6px"
+                  onclick="imprimirInformesPendientes()">🖨️ Imprimir Volantes (Este grado)</button>
+                <button id="btn-print-firmas-pend" class="btn"
+                  style="background:#8b5cf6;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:none;align-items:center;gap:6px"
+                  onclick="imprimirPlanillaFirmasPendientes()">📋 Imprimir Planilla Firmas (Este grado)</button>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;justify-content:flex-start">
+            <div
+              style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;justify-content:flex-start">
               <span style="font-size:13px;font-weight:600;color:#374151">Selecciona un grado:</span>
               <div id="pills-pend" style="text-align:left"></div>
             </div>
@@ -1921,14 +1998,17 @@
 
           <!-- Lista de actividades existentes -->
           <div class="card card-act" style="margin-top:16px;padding-bottom:8px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+            <div
+              style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
               <h3 style="margin:0;border:none;padding:0;font-size:15px">✏️ Editar / Eliminar actividades</h3>
-              <select id="act-lista-asig" onchange="renderListaActividades()" style="font-size:13px;padding:5px 8px;border-radius:8px;border:1px solid var(--border-glass);background:var(--bg-hover);color:var(--text-main);max-width:220px;flex:1">
+              <select id="act-lista-asig" onchange="renderListaActividades()"
+                style="font-size:13px;padding:5px 8px;border-radius:8px;border:1px solid var(--border-glass);background:var(--bg-hover);color:var(--text-main);max-width:220px;flex:1">
                 <option value="">-- Selecciona asignatura --</option>
               </select>
             </div>
             <div id="act-lista-body">
-              <p style="text-align:center;color:#6b7280;font-size:12px;padding:12px 0">Selecciona una asignatura para ver sus actividades</p>
+              <p style="text-align:center;color:#6b7280;font-size:12px;padding:12px 0">Selecciona una asignatura para
+                ver sus actividades</p>
             </div>
           </div>
         </div>
@@ -2014,7 +2094,8 @@
         <button class="bn-item tab-notas active" onclick="tab('notas', this)"><span>📝</span>Notas</button>
         <button class="bn-item tab-res"
           onclick="tab('resumen', this); if(gRes) selRes(gRes)"><span>📊</span>Resumen</button>
-        <button class="bn-item tab-pend" onclick="tab('pendientes', this); cargarPendientes()"><span>⚠️</span>Pendientes</button>
+        <button class="bn-item tab-pend"
+          onclick="tab('pendientes', this); cargarPendientes()"><span>⚠️</span>Pendientes</button>
         <button class="bn-item tab-ing" onclick="tab('ingreso', this)"><span>✏️</span>Ingreso</button>
         <button class="bn-item tab-act" onclick="tab('actividades', this)"><span>📋</span>Actividades</button>
         <button class="bn-item tab-est" onclick="tab('estudiantes', this)"><span>👥</span>Estudiantes</button>
@@ -2275,7 +2356,7 @@
       container.innerHTML = grados.map(g =>
         `<span class="pill pill-${tipo}" data-g="${g}">${g}</span>`
       ).join('');
-      
+
       // Agregar event listeners dinámicamente en lugar de fn.toString()
       container.querySelectorAll('.pill').forEach(pill => {
         pill.addEventListener('click', () => {
@@ -2451,17 +2532,21 @@
         `<div style="text-align:center;padding:40px;color:#9ca3af;font-size:14px">Selecciona un grado para ver los pendientes.</div>`;
       gPend = null;
       const btnPrint = document.getElementById('btn-print-pend');
-      if(btnPrint) btnPrint.style.display = 'none';
+      const btnPrintFirmas = document.getElementById('btn-print-firmas-pend');
+      if (btnPrint) btnPrint.style.display = 'none';
+      if (btnPrintFirmas) btnPrintFirmas.style.display = 'none';
     }
 
     async function selPend(grado) {
       gPend = grado;
       const btnPrint = document.getElementById('btn-print-pend');
-      if(btnPrint) btnPrint.style.display = 'flex';
+      const btnPrintFirmas = document.getElementById('btn-print-firmas-pend');
+      if (btnPrint) btnPrint.style.display = 'flex';
+      if (btnPrintFirmas) btnPrintFirmas.style.display = 'flex';
       const contenedor = document.getElementById('p-pendientes');
       contenedor.innerHTML = `<div style="text-align:center;padding:40px;color:#9ca3af;font-size:14px">Cargando pendientes…</div>`;
 
-      const ests  = DB.ests.filter(e => e.grado === grado).sort((a,b)=> a.nombre_completo.localeCompare(b.nombre_completo));
+      const ests = DB.ests.filter(e => e.grado === grado).sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
       const asigs = DB.asigs.filter(a => a.grado === grado);
       const actIds = [];
       const actsByAsig = {}; // asigId -> [act]
@@ -2562,13 +2647,13 @@
         const sinNota = total - npCount;
         const badgeClass = npCount > 0 ? 'np-badge' : '';
         const badgeText = npCount > 0
-          ? `${total} pendiente${total>1?'s':''} · ${npCount} NP`
+          ? `${total} pendiente${total > 1 ? 's' : ''} · ${npCount} NP`
           : `${total} sin nota`;
 
         html += `<div class="pend-student-card">
           <div class="pend-student-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
             <div style="display:flex;align-items:center;gap:6px">
-              <span class="pend-student-idx">${idx+1}</span>
+              <span class="pend-student-idx">${idx + 1}</span>
               <span class="pend-student-name">${est.nombre_completo}</span>
             </div>
             <div style="display:flex;align-items:center;gap:8px">
@@ -3439,7 +3524,7 @@
           <div style="display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border-glass)">
             <div style="flex:1;min-width:0">
               <div style="font-size:13px;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${act.nombre}</div>
-              <span style="display:inline-block;margin-top:3px;font-size:11px;padding:2px 7px;border-radius:10px;background:${act.porcentaje===1?'rgba(99,102,241,0.15)':'rgba(251,191,36,0.15)'};color:${act.porcentaje===1?'#818cf8':'#f59e0b'}">${act.porcentaje===1?'70% Saber/Hacer':'30% Evaluándonos'}</span>
+              <span style="display:inline-block;margin-top:3px;font-size:11px;padding:2px 7px;border-radius:10px;background:${act.porcentaje === 1 ? 'rgba(99,102,241,0.15)' : 'rgba(251,191,36,0.15)'};color:${act.porcentaje === 1 ? '#818cf8' : '#f59e0b'}">${act.porcentaje === 1 ? '70% Saber/Hacer' : '30% Evaluándonos'}</span>
             </div>
             <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
               <button class="btn" style="padding:4px 10px;font-size:12px;width:90px" onclick="abrirModalActividad(${act.id})">✏️ Editar</button>
@@ -3468,8 +3553,8 @@
             <div class="form-group" style="margin-top:15px">
               <label class="lbl">Tipo / Peso</label>
               <select id="m-act-por" style="width:100%">
-                <option value="1" ${act.porcentaje===1?'selected':''}>Saber / Hacer (70%)</option>
-                <option value="0" ${act.porcentaje===0?'selected':''}>Evaluándonos (30%)</option>
+                <option value="1" ${act.porcentaje === 1 ? 'selected' : ''}>Saber / Hacer (70%)</option>
+                <option value="0" ${act.porcentaje === 0 ? 'selected' : ''}>Evaluándonos (30%)</option>
               </select>
             </div>
             <input type="hidden" id="m-act-id" value="${id}">
@@ -4074,27 +4159,27 @@
       if (!DB.ests.length) return alert('No hay estudiantes.');
       const oldHtml = document.getElementById('p-pendientes').innerHTML;
       document.getElementById('p-pendientes').innerHTML = `<div style="text-align:center;padding:40px;color:#059669;font-size:14px">Generando archivo Excel... por favor espera.</div>`;
-      
+
       try {
         const { data: notas, error } = await sb.from('notas').select('estudiante_id, actividad_id, valor').eq('año', anio).eq('periodo', periodo);
         if (error) throw error;
-        
+
         const nMap = {};
         (notas || []).forEach(n => { nMap[`${n.estudiante_id}_${n.actividad_id}`] = Number(n.valor); });
-        
+
         const actsByAsig = {};
         DB.acts.forEach(a => {
-          if(!actsByAsig[a.asignatura_id]) actsByAsig[a.asignatura_id] = [];
+          if (!actsByAsig[a.asignatura_id]) actsByAsig[a.asignatura_id] = [];
           actsByAsig[a.asignatura_id].push(a);
         });
 
         const rows = [];
         const gradosUnicos = [...new Set(DB.ests.map(e => e.grado))].sort();
-        
+
         gradosUnicos.forEach(grado => {
-          const ests = DB.ests.filter(e => e.grado === grado).sort((a,b)=> a.nombre_completo.localeCompare(b.nombre_completo));
+          const ests = DB.ests.filter(e => e.grado === grado).sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
           const asigs = DB.asigs.filter(a => a.grado === grado);
-          
+
           ests.forEach(est => {
             asigs.forEach(asig => {
               const acts = actsByAsig[asig.id] || [];
@@ -4109,7 +4194,7 @@
             });
           });
         });
-        
+
         if (!rows.length) {
           alert('¡Felicidades! No hay actividades pendientes en todo el colegio.');
           document.getElementById('p-pendientes').innerHTML = oldHtml;
@@ -4120,7 +4205,7 @@
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Pendientes");
         XLSX.writeFile(wb, `Pendientes_${anio}_Periodo${periodo}.xlsx`);
-        
+
       } catch (e) {
         alert('Error al generar Excel: ' + e.message);
       }
@@ -4129,12 +4214,12 @@
 
     async function imprimirInformesPendientes() {
       if (!gPend) return alert('Selecciona un grado primero.');
-      
+
       try {
-        const ests = DB.ests.filter(e => e.grado === gPend).sort((a,b)=> a.nombre_completo.localeCompare(b.nombre_completo));
+        const ests = DB.ests.filter(e => e.grado === gPend).sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
         const asigs = DB.asigs.filter(a => a.grado === gPend);
         const actIds = [];
-        const actsByAsig = {}; 
+        const actsByAsig = {};
         asigs.forEach(asig => {
           const acts = DB.acts.filter(a => a.asignatura_id === asig.id);
           actsByAsig[asig.id] = acts;
@@ -4150,7 +4235,7 @@
         (notas || []).forEach(n => { nMap[`${n.estudiante_id}_${n.actividad_id}`] = Number(n.valor); });
 
         const estudiantesPend = ests.map(est => {
-          const pendsPorAsig = []; 
+          const pendsPorAsig = [];
           asigs.forEach(asig => {
             const acts = actsByAsig[asig.id] || [];
             const actsP = [];
@@ -4379,10 +4464,11 @@
             </div>
 
             <div class="message">
-              Estimado padre de familia y/o acudiente, este informe detalla las actividades que su acudido tiene <strong>pendientes de entrega</strong> o valoradas en <strong>cero (NP)</strong>. Solicitamos su valioso apoyo en el seguimiento oportuno.
+              Estimado padre de familia y/o acudiente:
+Le informamos que su acudido tiene actividades pendientes de entrega o registradas con calificación en cero (NP). Es indispensable su acompañamiento inmediato para que estas sean presentadas en el menor tiempo posible y evitar afectaciones en su desempeño académico.
             </div>
           `;
-          
+
           item.pendsPorAsig.forEach(p => {
             printHtml += `<div class="asig-block">
               <div class="asig-title">
@@ -4419,10 +4505,139 @@
           printWin.print();
         }, 500);
 
-      } catch(e) {
+      } catch (e) {
         alert('Error al generar impresión: ' + e.message);
       }
     }
+
+    async function imprimirPlanillaFirmasPendientes() {
+      if (!gPend) return alert('Selecciona un grado primero.');
+
+      try {
+        const ests = DB.ests.filter(e => e.grado === gPend).sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
+        const asigs = DB.asigs.filter(a => a.grado === gPend);
+        const actIds = [];
+        const actsByAsig = {};
+        asigs.forEach(asig => {
+          const acts = DB.acts.filter(a => a.asignatura_id === asig.id);
+          actsByAsig[asig.id] = acts;
+          acts.forEach(a => actIds.push(a.id));
+        });
+
+        if (!actIds.length) return alert('No hay actividades para el grado ' + gPend);
+
+        const { data: notas, error } = await sb.from('notas').select('estudiante_id, actividad_id, valor').in('actividad_id', actIds).eq('año', anio).eq('periodo', periodo);
+        if (error) throw error;
+
+        const nMap = {};
+        (notas || []).forEach(n => { nMap[`${n.estudiante_id}_${n.actividad_id}`] = Number(n.valor); });
+
+        const estudiantesPend = ests.map(est => {
+          let total = 0;
+          asigs.forEach(asig => {
+            const acts = actsByAsig[asig.id] || [];
+            acts.forEach(act => {
+              const val = nMap[`${est.id}_${act.id}`];
+              if (val === undefined || val === null || val === 0) total++;
+            });
+          });
+          return { est, total };
+        }).filter(e => e.total > 0);
+
+        if (!estudiantesPend.length) return alert('No hay estudiantes con pendientes en el grado ' + gPend);
+
+        let printHtml = `
+          <html>
+          <head>
+            <title>Planilla Firmas Pendientes - ${gPend}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+            <style>
+              * { box-sizing: border-box; }
+              body { 
+                font-family: 'Inter', sans-serif; 
+                padding: 20px; 
+                color: #1f2937; 
+                background-color: #fff; 
+                margin: 0; 
+              }
+              .header {
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #e5e7eb;
+                padding-bottom: 10px;
+              }
+              .header h2 { margin: 0; color: #111827; font-size: 20px; font-weight: 800; }
+              .header p { margin: 4px 0 0 0; font-size: 13px; color: #6b7280; font-weight: 600; text-transform: uppercase; }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+              }
+              th, td {
+                border: 1px solid #d1d5db;
+                padding: 10px;
+                text-align: left;
+                font-size: 13px;
+              }
+              th {
+                background-color: #f3f4f6;
+                font-weight: 700;
+                color: #374151;
+              }
+              tr:nth-child(even) { background-color: #f9fafb; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h2>Planilla de Control de Actividades Pendientes</h2>
+              <p>Grado: ${gPend} | Año: ${anio} | Periodo: ${periodo}</p>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:5%;text-align:center">No.</th>
+                  <th style="width:40%">Estudiante</th>
+                  <th style="width:15%;text-align:center">Act. Pendientes</th>
+                  <th style="width:40%">Firma Padre/Acudiente</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        estudiantesPend.forEach((item, index) => {
+          printHtml += `
+                <tr>
+                  <td style="text-align:center">${index + 1}</td>
+                  <td style="font-weight:600">${item.est.nombre_completo}</td>
+                  <td style="text-align:center;font-weight:700;color:#dc2626">${item.total}</td>
+                  <td></td>
+                </tr>
+          `;
+        });
+
+        printHtml += `
+              </tbody>
+            </table>
+            <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; color: #6b7280;">
+              <div>Generado el ${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}</div>
+              <div>Control Notas - Profesor Andresan</div>
+            </div>
+          </body>
+          </html>
+        `;
+
+        const printWin = window.open('', '_blank');
+        printWin.document.write(printHtml);
+        printWin.document.close();
+        printWin.focus();
+        setTimeout(() => {
+          printWin.print();
+        }, 500);
+      } catch (e) {
+        alert('Error al generar impresión: ' + e.message);
+      }
+    }
+
 
 
     // Registrar Service Worker
