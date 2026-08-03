@@ -1,4 +1,4 @@
-const CACHE = 'andresan-v2026-v6';
+const CACHE = 'andresan-v2026-v7';
 const ARCHIVOS = [
   './',
   './index.html',

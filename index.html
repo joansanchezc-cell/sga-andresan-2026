@@ -557,6 +557,8 @@
 
     .overflow-x {
       overflow-x: auto;
+      overflow-y: auto;
+      max-height: 70vh;
     }
 
     /* ── Desempeño ── */
@@ -887,6 +889,7 @@
     :root {
       --bg-base: #0f172a;
       --bg-card: rgba(30, 41, 59, 0.7);
+      --bg-sticky: #1a2744;
       --text-main: #f1f5f9;
       --text-sec: #94a3b8;
       --border-glass: rgba(255, 255, 255, 0.08);
@@ -1432,6 +1435,12 @@
       color: var(--text-main) !important;
     }
 
+    /* Sobrescribir fondo transparente para th dentro de tablas con scroll (sticky) */
+    .overflow-x table thead th {
+      background: var(--bg-sticky, #1a2744) !important;
+      color: var(--text-main) !important;
+    }
+
     .icon-item {
       background: rgba(0, 0, 0, 0.2) !important;
       border-color: var(--border-glass) !important;
@@ -1733,6 +1742,47 @@
 
     #p-inf h3[style*="color:#1c1c1a"] {
       color: var(--text-main) !important;
+    }
+
+    /* ── Tablas con encabezado y primera columna fijos ── */
+    .overflow-x table {
+      border-collapse: separate !important;
+      border-spacing: 0;
+    }
+
+    /* Encabezado fijo al hacer scroll vertical */
+    .overflow-x table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg-sticky, #f0f4f8);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    /* Columna de número (#) fija al hacer scroll horizontal */
+    .overflow-x table thead th:nth-child(1),
+    .overflow-x table tbody td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      z-index: 9;
+      background: var(--bg-sticky, #f0f4f8);
+      box-shadow: 2px 0 4px rgba(0,0,0,0.12);
+    }
+
+    /* Columna de nombre del estudiante fija */
+    .overflow-x table thead th:nth-child(2),
+    .overflow-x table tbody td:nth-child(2) {
+      position: sticky;
+      left: 40px;
+      z-index: 9;
+      background: var(--bg-sticky, #f0f4f8);
+      box-shadow: 2px 0 4px rgba(0,0,0,0.12);
+    }
+
+    /* Celda intersección (encabezado + columna fija): mayor z-index */
+    .overflow-x table thead th:nth-child(1),
+    .overflow-x table thead th:nth-child(2) {
+      z-index: 12;
     }
   </style>
   <link
@@ -2049,7 +2099,10 @@
                 <span style="font-size:32px">👥</span>
                 <h3 style="margin:0;border:none;padding:0">Gestión de Estudiantes</h3>
               </div>
-              <button class="btn btn-save" onclick="abrirModalEstudiante()">➕ Nuevo Estudiante</button>
+              <div style="display:flex;gap:8px;">
+                <button class="btn" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d" onclick="abrirModalRecuperarNotas()" title="Busca y recupera notas de un estudiante cuyo grado fue cambiado incorrectamente">🛟 Recuperar Notas</button>
+                <button class="btn btn-save" onclick="abrirModalEstudiante()">➕ Nuevo Estudiante</button>
+              </div>
             </div>
             <div class="form-row" style="margin-bottom:15px; align-items:flex-end;">
               <div class="form-group" style="max-width: 300px; flex: 1;">
@@ -2477,7 +2530,7 @@
       ests.forEach((est, idx) => {
         html += `<tr>
       <td style="font-size:12px;text-align:center;color:#9ca3af;font-weight:400;padding:4px 6px">${idx + 1}</td>
-      <td style="font-size:13px;font-weight:500">${est.nombre_completo}</td>`;
+      <td style="font-size:13px;font-weight:500;text-align:left">${est.nombre_completo}</td>`;
 
         acts.forEach(act => {
           const valor = nMap[`${est.id}_${act.id}`];
@@ -2933,7 +2986,7 @@
 
       ests.forEach((est, idx) => {
         const actual = pend[est.id] !== undefined ? pend[est.id] : (saved[est.id] || '');
-        html += `<tr><td style="font-size:11px;text-align:center;color:#9ca3af;padding:4px 6px">${idx + 1}</td><td style="font-size:12px">${est.nombre_completo}</td><td>
+        html += `<tr><td style="font-size:11px;text-align:center;color:#9ca3af;padding:4px 6px">${idx + 1}</td><td style="font-size:12px;text-align:left">${est.nombre_completo}</td><td>
       <div class="asis-grp">`;
         ESTADOS.forEach(s => {
           const on = actual === s.v;
@@ -3205,7 +3258,7 @@
         const mis_n = notasEst[est.id] || [];
         const mis_a = asistEst[est.id] || [];
         const defs = [];
-        html += `<tr><td style="font-size:11px;text-align:center;color:#9ca3af;padding:4px 6px">${idx + 1}</td><td style="font-size:12px">${est.nombre_completo}</td>`;
+        html += `<tr><td style="font-size:11px;text-align:center;color:#9ca3af;padding:4px 6px">${idx + 1}</td><td style="font-size:12px;text-align:left">${est.nombre_completo}</td>`;
 
         asigs.forEach(asig => {
           const actsA = DB.acts.filter(a => a.asignatura_id === asig.id);
@@ -3802,7 +3855,7 @@
       lista.forEach((e, idx) => {
         html.push(`<tr>
           <td style="text-align:center; padding:10px; border-bottom:1px solid var(--border-glass); font-size:12px; color:#9ca3af">${idx + 1}</td>
-          <td style="padding:10px; border-bottom:1px solid var(--border-glass)">${e.nombre_completo}</td>
+          <td style="padding:10px; border-bottom:1px solid var(--border-glass); text-align:left">${e.nombre_completo}</td>
           <td style="text-align:center; padding:10px; border-bottom:1px solid var(--border-glass)"><span class="badge" style="background:#e0e7ff; color:#3730a3">${e.grado}</span></td>
           <td style="text-align:center; padding:10px; border-bottom:1px solid var(--border-glass)"><button class="btn" style="padding: 4px 10px; font-size: 12px; margin-left: 5px;" onclick="abrirModalEstudiante(${e.id})">✏️ Editar</button></td>
         </tr>`);
@@ -3889,68 +3942,258 @@
       const grado = document.getElementById('m-est-grado').value;
       if (!nombre || !grado) { badge('no', 'Faltan datos'); return; }
 
-      const obj = { nombre_completo: nombre, grado: grado, año: anio };
-      let updatedId = id;
-
       if (id) {
-        // Edit
-        const { error } = await sb.from('estudiantes').update(obj).eq('id', id);
-        if (error) { badge('no', 'Error al actualizar'); console.error(error); return; }
-
-        // MIGRATION LOGIC
+        // ──── EDICIÓN ────
         if (oldGrado && oldGrado !== grado) {
-          await migrarNotas(id, oldGrado, grado, anio);
+          // El grado cambió → TRASLADO: crear nuevo estudiante en el grado destino,
+          // copiar las notas y dejar el original intacto en el grupo anterior.
+
+          // 1. Solo actualizar el nombre del estudiante original (NO el grado)
+          const { error: errNombre } = await sb.from('estudiantes')
+            .update({ nombre_completo: nombre })
+            .eq('id', id);
+          if (errNombre) { badge('no', 'Error al actualizar nombre'); console.error(errNombre); return; }
+
+          // 2. Crear el nuevo registro en el grado destino
+          badge('wait', 'Creando estudiante en el nuevo grupo...');
+          const { data: nuevoEst, error: errInsert } = await sb.from('estudiantes')
+            .insert({ nombre_completo: nombre, grado: grado, año: anio })
+            .select('id').single();
+          if (errInsert) { badge('no', 'Error al crear en nuevo grupo'); console.error(errInsert); return; }
+
+          // 3. Copiar las notas al nuevo estudiante/grupo
+          await copiarNotas(parseInt(id), nuevoEst.id, oldGrado, grado, anio);
+
+          document.getElementById('modal-dinamico').remove();
+          badge('ok', `✅ Traslado completado`);
+          await init();
+
+          // 4. Avisar al docente con un mensaje claro
+          setTimeout(() => {
+            alert(`✅ Traslado completado\n\n"${nombre}" fue añadido al grupo ${grado} con sus notas copiadas.\n\n⚠️ El estudiante SIGUE ACTIVO en el grupo ${oldGrado}. Elimínalo manualmente de ese grupo cuando lo consideres oportuno.`);
+          }, 400);
+
+        } else {
+          // Solo cambió el nombre, sin cambio de grado → update normal
+          const { error } = await sb.from('estudiantes')
+            .update({ nombre_completo: nombre, grado: grado, año: anio })
+            .eq('id', id);
+          if (error) { badge('no', 'Error al actualizar'); console.error(error); return; }
+          document.getElementById('modal-dinamico').remove();
+          badge('ok', 'Estudiante guardado');
+          await init();
         }
       } else {
-        // Insert
-        const { data, error } = await sb.from('estudiantes').insert(obj).select('id').single();
+        // ──── INSERCIÓN (nuevo estudiante) ────
+        const { data, error } = await sb.from('estudiantes')
+          .insert({ nombre_completo: nombre, grado: grado, año: anio })
+          .select('id').single();
         if (error) { badge('no', 'Error al insertar'); console.error(error); return; }
-        updatedId = data.id;
+        document.getElementById('modal-dinamico').remove();
+        badge('ok', 'Estudiante guardado');
+        await init();
       }
-
-      document.getElementById('modal-dinamico').remove();
-      badge('ok', 'Estudiante guardado');
-      await init(); // Reload data
     }
 
-    async function migrarNotas(estudianteId, gradoViejo, gradoNuevo, anio) {
-      console.log(`Iniciando migración para estudiante ${estudianteId} de ${gradoViejo} a ${gradoNuevo}...`);
-      badge('wait', 'Migrando notas...');
+    // ══════════════════════════════════════════════════════
+    // 🛟 HERRAMIENTA DE RECUPERACIÓN DE NOTAS
+    // Permite localizar notas de un estudiante aunque su
+    // grado haya sido cambiado con el código antiguo, y
+    // copiarlas forzadamente al grupo destino correcto.
+    // ══════════════════════════════════════════════════════
+    function abrirModalRecuperarNotas() {
+      const grados = [...new Set(DB.asigs.map(a => a.grado))].sort();
+      const gradoOpts = grados.map(g => `<option value="${g}">${g}</option>`).join('');
+
+      const modalHtml = `
+      <div class="modal-overlay" id="modal-dinamico">
+        <div class="modal-card" style="max-width:520px">
+          <div class="modal-head">
+            <h3>🛟 Recuperar Notas de Estudiante</h3>
+            <button class="menu-btn" onclick="document.getElementById('modal-dinamico').remove()">✕</button>
+          </div>
+          <div class="modal-body">
+            <p style="font-size:13px;color:#6b7280;margin:0 0 16px">Usa esta herramienta si cambiaste el grado de un estudiante y sus notas no se transfirieron correctamente. Busca al estudiante <strong>en su grado actual</strong> y selecciona el grado <strong>donde DEBEN quedar</strong> las notas.</p>
+
+            <div class="form-group">
+              <label class="lbl">Grado ACTUAL del estudiante (donde aparece ahora)</label>
+              <select id="rec-grado-origen" onchange="recCargarEstudiantes()" style="width:100%">
+                <option value="">Selecciona el grado actual…</option>
+                ${gradoOpts}
+              </select>
+            </div>
+            <div class="form-group" style="margin-top:12px">
+              <label class="lbl">Estudiante</label>
+              <select id="rec-estudiante" style="width:100%">
+                <option value="">Primero selecciona el grado…</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-top:12px">
+              <label class="lbl">Grado DESTINO (donde DEBEN quedar las notas)</label>
+              <select id="rec-grado-destino" style="width:100%">
+                <option value="">Selecciona el grado destino…</option>
+                ${gradoOpts}
+              </select>
+            </div>
+            <div id="rec-preview" style="margin-top:14px;font-size:12px;color:#374151;background:var(--bg-hover);padding:10px;border-radius:8px;display:none">
+              <strong>📋 Notas que se copiarán:</strong>
+              <div id="rec-preview-list" style="margin-top:6px"></div>
+            </div>
+          </div>
+          <div class="modal-foot" style="justify-content:flex-end">
+            <button class="btn" style="background:var(--bg-hover);color:var(--text-main)" onclick="document.getElementById('modal-dinamico').remove()">Cancelar</button>
+            <button class="btn btn-save" onclick="recuperarNotasEstudiante()" id="btn-rec-confirmar">🛟 Copiar Notas al Grado Destino</button>
+          </div>
+        </div>
+      </div>`;
+
+      let div = document.getElementById('modal-container');
+      if (!div) { div = document.createElement('div'); div.id = 'modal-container'; document.body.appendChild(div); }
+      div.innerHTML = modalHtml;
+    }
+
+    function recCargarEstudiantes() {
+      const grado = document.getElementById('rec-grado-origen').value;
+      const sel = document.getElementById('rec-estudiante');
+      if (!grado) { sel.innerHTML = '<option value="">Primero selecciona el grado…</option>'; return; }
+      const lista = DB.ests.filter(e => e.grado === grado);
+      sel.innerHTML = '<option value="">Selecciona estudiante…</option>' +
+        lista.map(e => `<option value="${e.id}">${e.nombre_completo}</option>`).join('');
+    }
+
+    async function recuperarNotasEstudiante() {
+      const estId     = parseInt(document.getElementById('rec-estudiante').value);
+      const gradoOrig = document.getElementById('rec-grado-origen').value;
+      const gradoDest = document.getElementById('rec-grado-destino').value;
+
+      if (!estId || !gradoOrig || !gradoDest) { badge('no', 'Completa todos los campos'); return; }
+      if (gradoOrig === gradoDest) { badge('no', 'El grado origen y destino son iguales'); return; }
+
+      const est = DB.ests.find(e => e.id === estId);
+      if (!est) { badge('no', 'Estudiante no encontrado'); return; }
+
+      if (!confirm(`¿Copiar las notas de "${est.nombre_completo}" (${gradoOrig}) al grupo ${gradoDest}?\n\nSe creará el estudiante en ${gradoDest} si no existe, y se copiarán las notas. Las notas originales en ${gradoOrig} NO se borran.`)) return;
+
+      document.getElementById('modal-dinamico').remove();
+      badge('wait', 'Recuperando notas...');
+
+      // Verificar si ya existe el estudiante en el grado destino
+      let destEstId;
+      const yaExiste = DB.ests.find(e => e.nombre_completo === est.nombre_completo && e.grado === gradoDest);
+      if (yaExiste) {
+        destEstId = yaExiste.id;
+        console.log(`[recuperar] El estudiante ya existe en ${gradoDest} con id=${destEstId}`);
+      } else {
+        // Crear nuevo registro en grado destino
+        const { data: nuevoEst, error: errIns } = await sb.from('estudiantes')
+          .insert({ nombre_completo: est.nombre_completo, grado: gradoDest, año: anio })
+          .select('id').single();
+        if (errIns) { badge('no', 'Error al crear en destino'); console.error(errIns); return; }
+        destEstId = nuevoEst.id;
+        console.log(`[recuperar] Nuevo estudiante creado en ${gradoDest} con id=${destEstId}`);
+      }
+
+      // Copiar notas forzadas
+      await copiarNotas(estId, destEstId, gradoOrig, gradoDest, anio);
+
+      badge('ok', `✅ Notas recuperadas en ${gradoDest}`);
+      await init();
+      setTimeout(() => {
+        alert(`✅ Recuperación completada\n\nLas notas de "${est.nombre_completo}" fueron copiadas al grupo ${gradoDest}.\n\nEl estudiante sigue en ${gradoOrig}. Elimínalo manualmente de ahí si ya no corresponde.`);
+      }, 400);
+    }
+
+
+
+    /**
+     * copiarNotas — Traslado no destructivo entre grupos.
+     *
+     * Copia las notas del estudianteId original al nuevoEstudianteId en gradoNuevo,
+     * emparejando asignaturas y actividades por nombre y período.
+     * Las notas del grupo original NO se tocan (no hay delete ni update sobre ellas).
+     *
+     * @param {number} estudianteId      - ID del estudiante en el grupo original
+     * @param {number} nuevoEstudianteId - ID del nuevo estudiante creado en el grupo destino
+     * @param {string} gradoViejo        - Grado de origen
+     * @param {string} gradoNuevo        - Grado de destino
+     * @param {string|number} anio       - Año académico
+     */
+    async function copiarNotas(estudianteId, nuevoEstudianteId, gradoViejo, gradoNuevo, anio) {
+      console.log(`[copiarNotas] Copiando notas del est.${estudianteId}(${gradoViejo}) → est.${nuevoEstudianteId}(${gradoNuevo})`);
+      badge('wait', 'Copiando notas al nuevo grupo...');
+
+      // 1. Obtener notas del estudiante original
       const { data: notas } = await sb.from('notas').select('*').eq('estudiante_id', estudianteId).eq('año', anio);
-      if (!notas || notas.length === 0) return;
+      if (!notas || notas.length === 0) {
+        console.log('[copiarNotas] No hay notas que copiar.');
+        return;
+      }
 
+      // 2. Obtener actividades y asignaturas del grupo origen
       const oldActIds = [...new Set(notas.map(n => n.actividad_id))];
-      if (oldActIds.length === 0) return;
-
       const { data: oldActs } = await sb.from('actividades').select('*').in('id', oldActIds);
       const oldAsigIds = [...new Set(oldActs.map(a => a.asignatura_id))];
       const { data: asigsViejas } = await sb.from('asignaturas').select('*').in('id', oldAsigIds);
 
-      // Buscar las asignaturas en el grado nuevo
+      // 3. Obtener asignaturas del grupo destino y construir mapa vieja→nueva por nombre
       const { data: asigsNuevas } = await sb.from('asignaturas').select('*').eq('grado', gradoNuevo).eq('año', anio);
+      if (!asigsNuevas || asigsNuevas.length === 0) {
+        console.log('[copiarNotas] El grupo destino no tiene asignaturas; no se copian notas.');
+        return;
+      }
 
-      const mapAsigs = {};
-      for (let av of asigsViejas) {
+      const mapAsigs = {}; // { asigViejaId: asigNuevaId }
+      for (const av of asigsViejas) {
         const an = asigsNuevas.find(a => a.nombre.toLowerCase().trim() === av.nombre.toLowerCase().trim());
         if (an) mapAsigs[av.id] = an.id;
       }
 
       const newAsigIds = Object.values(mapAsigs);
-      if (newAsigIds.length === 0) return;
+      if (newAsigIds.length === 0) {
+        console.log('[copiarNotas] No hay asignaturas coincidentes entre grupos.');
+        return;
+      }
 
+      // 4. Obtener actividades del grupo destino
       const { data: newActs } = await sb.from('actividades').select('*').in('asignatura_id', newAsigIds);
 
-      for (let nota of notas) {
+      // 5. Para cada nota del estudiante original, buscar la actividad equivalente en el
+      //    grupo destino e INSERTAR una nueva nota (no se toca la nota original)
+      const notasAInsertar = [];
+      for (const nota of notas) {
         const oldAct = oldActs.find(a => a.id === nota.actividad_id);
         if (!oldAct) continue;
         const newAsigId = mapAsigs[oldAct.asignatura_id];
         if (!newAsigId) continue;
 
-        const newAct = newActs.find(a => a.asignatura_id === newAsigId && a.nombre.toLowerCase().trim() === oldAct.nombre.toLowerCase().trim() && a.periodo === oldAct.periodo);
+        const newAct = newActs.find(
+          a => a.asignatura_id === newAsigId
+            && a.nombre.toLowerCase().trim() === oldAct.nombre.toLowerCase().trim()
+            && a.periodo === oldAct.periodo
+        );
 
         if (newAct) {
-          await sb.from('notas').update({ actividad_id: newAct.id, asignatura_id: newAsigId }).eq('id', nota.id);
+          // Construir nueva fila de nota para el estudiante destino
+          const nuevaNota = {
+            estudiante_id:  nuevoEstudianteId,
+            actividad_id:   newAct.id,
+            asignatura_id:  newAsigId,
+            valor:          nota.valor,
+            año:            nota.año,
+          };
+          // Copiar campos extra si existen (ej. observaciones, estado)
+          if ('observacion' in nota)  nuevaNota.observacion  = nota.observacion;
+          if ('estado'      in nota)  nuevaNota.estado        = nota.estado;
+          notasAInsertar.push(nuevaNota);
         }
+      }
+
+      if (notasAInsertar.length > 0) {
+        const { error } = await sb.from('notas').insert(notasAInsertar);
+        if (error) console.error('[copiarNotas] Error al insertar notas copiadas:', error);
+        else console.log(`[copiarNotas] ${notasAInsertar.length} nota(s) copiada(s) correctamente.`);
+      } else {
+        console.log('[copiarNotas] No se encontraron actividades coincidentes; no se copió ninguna nota.');
       }
     }
 
