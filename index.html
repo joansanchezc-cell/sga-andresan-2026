@@ -4123,7 +4123,14 @@
       badge('wait', 'Copiando notas al nuevo grupo...');
 
       // 1. Obtener notas del estudiante original
-      const { data: notas } = await sb.from('notas').select('*').eq('estudiante_id', estudianteId).eq('año', anio);
+      //    La columna 'año' en asignaturas puede ser null, así que primero
+      //    intentamos con filtro de año y si no hay resultados lo omitimos.
+      let { data: notas } = await sb.from('notas').select('*').eq('estudiante_id', estudianteId).eq('año', anio);
+      if (!notas || notas.length === 0) {
+        // Fallback: buscar sin filtro de año (columna puede ser null en algunos registros)
+        const { data: notasSinAnio } = await sb.from('notas').select('*').eq('estudiante_id', estudianteId);
+        notas = notasSinAnio;
+      }
       if (!notas || notas.length === 0) {
         console.log('[copiarNotas] No hay notas que copiar.');
         return;
@@ -4135,8 +4142,9 @@
       const oldAsigIds = [...new Set(oldActs.map(a => a.asignatura_id))];
       const { data: asigsViejas } = await sb.from('asignaturas').select('*').in('id', oldAsigIds);
 
-      // 3. Obtener asignaturas del grupo destino y construir mapa vieja→nueva por nombre
-      const { data: asigsNuevas } = await sb.from('asignaturas').select('*').eq('grado', gradoNuevo).eq('año', anio);
+      // 3. Obtener asignaturas del grupo destino y construir mapa vieja→nueva por nombre.
+      //    IMPORTANTE: No filtrar por año porque esa columna es null en la tabla asignaturas.
+      const { data: asigsNuevas } = await sb.from('asignaturas').select('*').eq('grado', gradoNuevo);
       if (!asigsNuevas || asigsNuevas.length === 0) {
         console.log('[copiarNotas] El grupo destino no tiene asignaturas; no se copian notas.');
         return;
