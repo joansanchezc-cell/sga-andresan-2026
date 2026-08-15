@@ -1850,6 +1850,8 @@
           Cursos</button>
         <button class="sb-nav-item tab tab-inf" onclick="tab('informe', this); closeSidebar()"><span>📄</span>
           Informes</button>
+        <button class="sb-nav-item tab tab-udeki" onclick="tab('udeki', this); closeSidebar()"><span>⚡</span>
+          Sincronizar Udeki</button>
       </div>
       <div class="sb-footer">
         <div class="sb-profile-card">
@@ -2140,6 +2142,69 @@
           </div>
         </div>
 
+        <!-- ── UDEKI SYNC ── -->
+        <div id="s-udeki" class="sec">
+          <!-- CARD 1: RELLENAR NOTAS VACÍAS -->
+          <div class="card" style="border-left:4px solid #10b981; margin-bottom:15px; text-align:left;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <span style="font-size:32px">✏️</span>
+              <h3 style="margin:0;border:none;padding:0">Rellenar Notas Vacías</h3>
+            </div>
+            <p style="font-size:14px;color:#4b5563;margin-bottom:15px;line-height:1.5;">
+              Asigna rápidamente una calificación estándar (por ejemplo, 6.0) a todas las actividades de todos tus estudiantes y asignaturas que actualmente se encuentren <strong>sin calificar</strong> en el año y periodo activo.
+            </p>
+            <button class="btn btn-save" onclick="rellenarNotasVacias()" style="background:#10b981; border:none; padding:12px 24px; font-weight:600; font-size:14px; border-radius:8px; color:white; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+              ✏️ Rellenar Notas Vacías
+            </button>
+          </div>
+
+          <!-- CARD 2: IMPORTAR DESDE EVALUÁNDONOS -->
+          <div class="card" style="border-left:4px solid #f59e0b; margin-bottom:15px; text-align:left;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <span style="font-size:32px">📥</span>
+              <h3 style="margin:0;border:none;padding:0">Importar Matemáticas desde Evaluándonos</h3>
+            </div>
+            <p style="font-size:14px;color:#4b5563;margin-bottom:15px;line-height:1.5;">
+              Importa las calificaciones de Matemáticas (Álgebra y Trigonometría) desde la base de datos de la aplicación **Evaluándonos** para tus grupos (901, 902, 903, 1002). Convierte el porcentaje del examen automáticamente a escala decimal (`porcentaje / 10`) y lo guarda en la actividad "Evaluándonos" correspondiente.
+            </p>
+            <button class="btn btn-save" onclick="importarEvaluandonos()" style="background:#f59e0b; border:none; padding:12px 24px; font-weight:600; font-size:14px; border-radius:8px; color:white; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+              📥 Importar desde Evaluándonos
+            </button>
+          </div>
+
+          <!-- CARD 3: SINCRONIZAR A UDEKI -->
+          <div class="card" style="border-left:4px solid #6366f1; margin-bottom:12px; text-align:left;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <span style="font-size:32px">⚡</span>
+              <h3 style="margin:0;border:none;padding:0">Sincronizador de Notas a Udeki</h3>
+            </div>
+            <p style="font-size:14px;color:#4b5563;margin-bottom:15px;line-height:1.5;">
+              Esta herramienta te permite transferir de forma automática las notas calculadas (resumen definitivo) desde tu aplicación de control de notas hacia la plataforma oficial de <strong>Udeki</strong>.
+            </p>
+            
+            <div style="background:#f3f4f6;padding:15px;border-radius:8px;margin-bottom:15px;">
+              <h4 style="margin-top:0;margin-bottom:8px;font-size:14px;color:#1f2937;">Pasos para instalar y usar el automatizador:</h4>
+              <ol style="margin:0;padding-left:20px;font-size:13px;color:#4b5563;line-height:1.6;">
+                <li>Arrastra el botón azul que ves abajo directamente a tu <strong>Barra de marcadores del navegador</strong> (Bookmarks Bar). Si no la ves, puedes activarla con <code>Ctrl + Shift + B</code> en Chrome/Edge.</li>
+                <li>Ve a la pestaña de Udeki en la sección de <strong>Calificaciones</strong> (<a href="https://app.udeki.com/calificaciones" target="_blank">https://app.udeki.com/calificaciones</a>).</li>
+                <li>Selecciona la asignatura, el grupo y el periodo deseado en Udeki.</li>
+                <li>Haz clic en el marcador guardado (<strong>Sincronizar Udeki</strong>) en tu barra de marcadores.</li>
+                <li>El script leerá automáticamente qué asignatura tienes abierta en Udeki, buscará los alumnos y sus notas en esta base de datos, y rellenará la tabla completa automáticamente.</li>
+                <li>Verifica los cambios y haz clic en <strong>Guardar Calificaciones</strong> en Udeki.</li>
+              </ol>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+              <a href="javascript:(function(){const%20s=document.createElement('script');s.src='https://notas-andresan.vercel.app/UDEKI/udeki_sync_bookmarklet.js?t='+Date.now();document.body.appendChild(s);})();" 
+                 style="display:inline-block;padding:12px 24px;background:#6366f1;color:white;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;box-shadow:0 4px 6px -1px rgba(99,102,241,0.3);cursor:grab;"
+                 onclick="alert('¡No hagas clic aquí! Arrastra este botón a tu barra de marcadores en el navegador para poder usarlo en la pestaña de Udeki.');return false;">
+                ⚡ Sincronizar Udeki
+              </a>
+              <span style="font-size:12px;color:#6b7280;font-weight:500;">← Arrastra este botón a la barra de marcadores de tu navegador</span>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /app-body -->
 
       <!-- Bottom Nav (Mobile) -->
@@ -2154,6 +2219,7 @@
         <button class="bn-item tab-est" onclick="tab('estudiantes', this)"><span>👥</span>Estudiantes</button>
         <button class="bn-item tab-cur" onclick="tab('cursos', this)"><span>📚</span>Cursos</button>
         <button class="bn-item tab-inf" onclick="tab('informe', this)"><span>📄</span>Informe</button>
+        <button class="bn-item tab-udeki" onclick="tab('udeki', this)"><span>⚡</span>Udeki</button>
       </div>
 
     </div> <!-- End main-wrapper -->
@@ -4896,6 +4962,244 @@ Le informamos que su acudido tiene actividades pendientes de entrega o registrad
         }, 500);
       } catch (e) {
         alert('Error al generar impresión: ' + e.message);
+      }
+    }
+
+
+
+    // ── FUNCIONES DE SINCRONIZACIÓN Y UTILIDADES ──────────────────────────
+
+    async function rellenarNotasVacias() {
+      const notaStr = prompt('Ingresa la nota (de 1.0 a 10.0) que deseas asignar a todas las actividades vacías:');
+      if (notaStr === null) return;
+      const notaVal = parseFloat(notaStr);
+      if (isNaN(notaVal) || notaVal < 1.0 || notaVal > 10.0) {
+        alert('Nota no válida. Debe ser un número entre 1.0 y 10.0');
+        return;
+      }
+
+      badge('wait', 'Rellenando notas vacías...');
+      try {
+        const [ra, re, rac] = await Promise.all([
+          sb.from('asignaturas').select('*'),
+          sb.from('estudiantes').select('*').eq('año', anio),
+          sb.from('actividades').select('*').eq('periodo', periodo)
+        ]);
+
+        const asigs = (ra.data || []).filter(a => !a.año || a.año === anio);
+        const ests = re.data || [];
+        const acts = rac.data || [];
+
+        if (ests.length === 0 || acts.length === 0) {
+          badge('no', 'No hay estudiantes o actividades en este periodo.');
+          alert('No hay estudiantes o actividades en este periodo.');
+          return;
+        }
+
+        const { data: notasExistentes } = await sb.from('notas')
+          .select('estudiante_id, actividad_id')
+          .eq('año', anio)
+          .eq('periodo', periodo);
+
+        const notaSet = new Set((notasExistentes || []).map(n => `${n.estudiante_id}_${n.actividad_id}`));
+
+        const notasAInsertar = [];
+        for (const est of ests) {
+          const asigIds = asigs.filter(a => a.grado === est.grado).map(a => a.id);
+          const estActs = acts.filter(a => asigIds.includes(a.asignatura_id));
+
+          for (const act of estActs) {
+            const key = `${est.id}_${act.id}`;
+            if (!notaSet.has(key)) {
+              notasAInsertar.push({
+                estudiante_id: est.id,
+                actividad_id: act.id,
+                asignatura_id: act.asignatura_id,
+                valor: notaVal,
+                periodo: periodo,
+                año: anio
+              });
+            }
+          }
+        }
+
+        if (notasAInsertar.length === 0) {
+          badge('ok', 'No hay notas vacías.');
+          alert('¡Todos los estudiantes ya tienen notas en todas sus actividades!');
+          return;
+        }
+
+        if (!confirm(`Se encontraron ${notasAInsertar.length} actividades sin calificación. ¿Deseas rellenarlas todas con la nota ${notaVal}?`)) {
+          badge('ok', 'Operación cancelada');
+          return;
+        }
+
+        const batchSize = 100;
+        let errores = 0;
+        for (let i = 0; i < notasAInsertar.length; i += batchSize) {
+          const batch = notasAInsertar.slice(i, i + batchSize);
+          const { error } = await sb.from('notas').insert(batch);
+          if (error) {
+            console.error('Error insertando lote:', error);
+            errores += batch.length;
+          }
+        }
+
+        if (errores > 0) {
+          badge('no', 'Error al guardar algunas notas');
+          alert(`Sincronización completada con algunos errores. No se pudieron guardar ${errores} notas.`);
+        } else {
+          badge('ok', 'Notas rellenadas ✓');
+          alert(`¡Éxito! Se rellenaron ${notasAInsertar.length} calificaciones vacías con la nota ${notaVal}.`);
+          await init();
+        }
+      } catch (e) {
+        console.error(e);
+        badge('no', 'Error');
+        alert('Ocurrió un error al procesar las notas: ' + e.message);
+      }
+    }
+
+    async function importarEvaluandonos() {
+      if (!confirm(`¿Deseas importar las calificaciones de la prueba "Evaluándonos" (Periodo ${periodo}) para tus asignaturas de Matemáticas?`)) return;
+
+      badge('wait', 'Importando notas...');
+      
+      const EV_URL = "https://txnecdeccianklqqyrav.supabase.co";
+      const EV_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4bmVjZGVjY2lhbmtscXF5cmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MDQzMDIsImV4cCI6MjA5MTk4MDMwMn0.e2ybyt2Y8yHsZwRC-MZqi_qK525-CWpk-huQcQy-icM"; // Corrected key from CONFIG.js
+
+      try {
+        const fetchTable = async (table, query = "") => {
+          const r = await fetch(`${EV_URL}/rest/v1/${table}?${query}`, {
+            headers: { 'apikey': EV_KEY, 'Authorization': 'Bearer ' + EV_KEY }
+          });
+          if (!r.ok) throw new Error(await r.text());
+          return r.json();
+        };
+
+        const evNotas = await fetchTable('eval_estudiantes_notas', `periodo=eq.${periodo}&anio=eq.${anio}`);
+        if (!evNotas || evNotas.length === 0) {
+          badge('no', 'No hay datos en Evaluándonos');
+          alert('No se encontraron registros de examen en Evaluándonos para este periodo y año.');
+          return;
+        }
+
+        console.log(`Cargadas ${evNotas.length} calificaciones desde Evaluándonos.`);
+
+        const mathGrades = ['901', '902', '903', '1002'];
+        const mathAsigMapping = { '901': 1, '902': 2, '903': 3, '1002': 10 };
+
+        const filteredEvNotas = evNotas.filter(n => mathGrades.includes(n.grado));
+        if (filteredEvNotas.length === 0) {
+          badge('ok', 'Sin notas para tus grupos.');
+          alert('No se encontraron calificaciones de matemáticas para tus grupos específicos (901, 902, 903, 1002) en Evaluándonos.');
+          return;
+        }
+
+        const { data: acts } = await sb.from('actividades')
+          .select('*')
+          .eq('periodo', periodo)
+          .in('asignatura_id', Object.values(mathAsigMapping));
+
+        const normalize = (str) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const actMapping = {};
+        
+        Object.values(mathAsigMapping).forEach(asigId => {
+          const act = (acts || []).find(a => a.asignatura_id === asigId && normalize(a.nombre).includes('evaluandonos'));
+          if (act) actMapping[asigId] = act.id;
+        });
+
+        function cleanName(name) {
+          return name.toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]/g, " ")
+            .replace(/\s+/g, " ").trim();
+        }
+
+        const localEsts = DB.ests.filter(e => mathGrades.includes(e.grado));
+        const localEstsMap = {};
+        localEsts.forEach(e => {
+          localEstsMap[cleanName(e.nombre_completo)] = e;
+        });
+
+        const notasAInsertar = [];
+        let emparejados = 0;
+
+        for (const evn of filteredEvNotas) {
+          const cleanUName = cleanName(evn.estudiante_nombre);
+          let localEst = localEstsMap[cleanUName];
+          
+          if (!localEst) {
+            const keys = Object.keys(localEstsMap);
+            const bestKey = keys.find(k => k.includes(cleanUName) || cleanUName.includes(k) || k.substring(0, 15) === cleanUName.substring(0, 15));
+            if (bestKey) localEst = localEstsMap[bestKey];
+          }
+
+          if (localEst) {
+            const asigId = mathAsigMapping[localEst.grado];
+            const actId = actMapping[asigId];
+            if (actId) {
+              const score = parseFloat((evn.porcentaje / 10).toFixed(1));
+              notasAInsertar.push({
+                estudiante_id: localEst.id,
+                actividad_id: actId,
+                asignatura_id: asigId,
+                valor: score,
+                periodo: periodo,
+                año: anio
+              });
+              emparejados++;
+            }
+          }
+        }
+
+        if (notasAInsertar.length === 0) {
+          badge('no', 'No se pudieron emparejar alumnos');
+          alert('No se pudo emparejar ningún estudiante con la base de datos de notas.');
+          return;
+        }
+
+        console.log(`Emparejados ${emparejados} de ${filteredEvNotas.length} alumnos.`);
+
+        let guardados = 0;
+        let errores = 0;
+
+        for (const n of notasAInsertar) {
+          const { data: existente } = await sb.from('notas').select('id')
+            .eq('estudiante_id', n.estudiante_id)
+            .eq('actividad_id', n.actividad_id)
+            .eq('año', anio)
+            .eq('periodo', periodo)
+            .maybeSingle();
+
+          let error;
+          if (existente) {
+            ({ error } = await sb.from('notas').update({ valor: n.valor }).eq('id', existente.id));
+          } else {
+            ({ error } = await sb.from('notas').insert(n));
+          }
+
+          if (error) {
+            console.error('Error guardando nota:', error);
+            errores++;
+          } else {
+            guardados++;
+          }
+        }
+
+        if (errores > 0) {
+          badge('no', 'Error al guardar notas');
+          alert(`Importación completada con errores: se guardaron ${guardados} notas, fallaron ${errores}.`);
+        } else {
+          badge('ok', 'Importado con éxito ✓');
+          alert(`¡Importación completada con éxito!\n\nSe importaron ${guardados} notas desde la prueba "Evaluándonos" a tus asignaturas de matemáticas.`);
+          await init();
+        }
+
+      } catch (e) {
+        console.error(e);
+        badge('no', 'Error');
+        alert('Ocurrió un error al importar las notas: ' + e.message);
       }
     }
 
