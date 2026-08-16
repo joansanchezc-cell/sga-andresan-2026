@@ -48,7 +48,7 @@
   let subjectSelect = null;
   for (const s of document.querySelectorAll('select')) {
     const text = (s.options[s.selectedIndex]?.text || "").trim();
-    if (!text.includes("2026") && !text.toUpperCase().includes("PERIODO")) {
+    if (text.includes(" - ")) {
       subjectSelect = s;
       break;
     }
