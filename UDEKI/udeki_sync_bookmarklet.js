@@ -109,7 +109,8 @@
       const d = defin(v70, v30);
       localGrades[cleanName(est.nombre_completo)] = {
         name: est.nombre_completo,
-        desempeño: getDesempeño(d)
+        desempeño: getDesempeño(d),
+        numeric: d
       };
     });
 
@@ -142,12 +143,24 @@
 
       if (match) {
         matchedCount++;
-        const selectElements = row.querySelectorAll('select');
+        const gradeInputs = row.querySelectorAll('select, input:not([type="hidden"]):not([type="checkbox"])');
         
-        selectElements.forEach((selectEl) => {
-          if (match.desempeño && selectEl.value !== match.desempeño) {
-            selectEl.value = match.desempeño;
-            selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+        gradeInputs.forEach((el) => {
+          let valToSet = null;
+          let isNumeric = el.tagName === "INPUT" && (el.type === "number" || el.type === "text");
+          
+          if (isNumeric && match.numeric !== null && match.numeric !== undefined) {
+             valToSet = match.numeric.toFixed(2).replace('.', ','); // Try comma or dot based on what Udeki wants, maybe just string
+             // Let's just use dot first, if it fails maybe they use comma
+             valToSet = match.numeric.toFixed(2);
+          } else if (match.desempeño) {
+             valToSet = match.desempeño;
+          }
+
+          if (valToSet !== null && el.value !== valToSet) {
+            el.value = valToSet;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
             updatedCount++;
           }
         });
