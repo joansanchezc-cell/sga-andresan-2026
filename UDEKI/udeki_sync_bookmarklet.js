@@ -34,7 +34,11 @@
   function getDesempeño(n) {
     if (n === null || n === undefined || isNaN(n)) return '';
     if (n === 0) return 'BJ';
-    return n >= 8.4 ? 'S' : n >= 7.2 ? 'A' : n >= 6.0 ? 'B' : 'BJ';
+    if (n >= 1 && n <= 2.99) return 'BJ';
+    if (n >= 3 && n <= 3.99) return 'B';
+    if (n >= 4 && n <= 4.59) return 'A';
+    if (n >= 4.6 && n <= 5) return 'S';
+    return '';
   }
 
   // Clean names for fuzzy matching
@@ -143,19 +147,10 @@
 
       if (match) {
         matchedCount++;
-        const gradeInputs = row.querySelectorAll('select, input:not([type="hidden"]):not([type="checkbox"])');
+        const gradeInputs = row.querySelectorAll('select');
         
         gradeInputs.forEach((el) => {
-          let valToSet = null;
-          let isNumeric = el.tagName === "INPUT" && (el.type === "number" || el.type === "text");
-          
-          if (isNumeric && match.numeric !== null && match.numeric !== undefined) {
-             valToSet = match.numeric.toFixed(2).replace('.', ','); // Try comma or dot based on what Udeki wants, maybe just string
-             // Let's just use dot first, if it fails maybe they use comma
-             valToSet = match.numeric.toFixed(2);
-          } else if (match.desempeño) {
-             valToSet = match.desempeño;
-          }
+          let valToSet = match.desempeño;
 
           if (valToSet !== null && el.value !== valToSet) {
             el.value = valToSet;
