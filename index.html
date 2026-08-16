@@ -2604,9 +2604,17 @@
 
       // Filas de estudiantes
       ests.forEach((est, idx) => {
+        // Calcular si va perdiendo para resaltar el nombre
+        const v70 = acts.filter(a => a.porcentaje === 1).map(a => nMap[`${est.id}_${a.id}`]);
+        const v30 = acts.filter(a => a.porcentaje === 0).map(a => nMap[`${est.id}_${a.id}`]);
+        const d = defin(v70, v30);
+        const isFailing = (d !== null && d !== undefined && !isNaN(d) && d < 6.0);
+        const nameColor = isFailing ? '#ef4444' : 'inherit';
+        const nameWeight = isFailing ? '700' : '500';
+
         html += `<tr>
       <td style="font-size:12px;text-align:center;color:#9ca3af;font-weight:400;padding:4px 6px">${idx + 1}</td>
-      <td style="font-size:13px;font-weight:500;text-align:left">${est.nombre_completo}</td>`;
+      <td style="font-size:13px;font-weight:${nameWeight};color:${nameColor};text-align:left">${est.nombre_completo}</td>`;
 
         acts.forEach(act => {
           const valor = nMap[`${est.id}_${act.id}`];
