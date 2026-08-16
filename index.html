@@ -1954,20 +1954,6 @@
             <h3>Selecciona un grupo</h3>
             <div id="pills-res"></div>
             
-            <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 15px; margin-top: 15px;">
-              <h4 style="margin-top:0; margin-bottom:12px; font-size:14px; color:#374151; font-weight:700;">Acciones de Sincronización y Respaldo</h4>
-              <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button class="btn" onclick="rellenarNotasVacias()" style="background:#10b981; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
-                  ✏️ Rellenar Notas Vacías
-                </button>
-                <button class="btn" onclick="importarEvaluandonos()" style="background:#f59e0b; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
-                  📥 Importar Matemáticas (Evaluándonos)
-                </button>
-                <button class="btn" onclick="descargarRespaldoCompleto()" style="background:#3b82f6; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
-                  💾 Descargar Respaldo
-                </button>
-              </div>
-            </div>
           </div>
           <div id="p-res"></div>
         </div>
@@ -3344,6 +3330,10 @@
       ${asigs.map(a => `<th title="${a.nombre}">${a.codigo}</th>`).join('')}
     </tr></thead><tbody>`;
 
+      let gananCount = {};
+      let pierdenCount = {};
+      asigs.forEach(a => { gananCount[a.id] = 0; pierdenCount[a.id] = 0; });
+
       ests.forEach((est, idx) => {
         const mis_n = notasEst[est.id] || [];
         const mis_a = asistEst[est.id] || [];
@@ -3361,6 +3351,11 @@
           const d = defin(v70, v30);
           defs.push(d);
 
+          if (d !== null && d !== undefined && !isNaN(d)) {
+            if (d >= 6.0) gananCount[asig.id]++;
+            else pierdenCount[asig.id]++;
+          }
+
           // Faltas de esta asignatura específica
           const aid = asig.id, eid = est.id;
           const fNuevas = mis_a.filter(a => a.asignatura_id == aid && a.estado === 'No asistió').length;
@@ -3376,7 +3371,16 @@
         html += `</tr>`;
       });
 
-      html += `</tbody></table></div></div>`;
+      html += `</tbody><tfoot>
+        <tr style="background:#f3f4f6;font-weight:bold;">
+          <td colspan="2" style="text-align:right;font-size:12px;padding:8px 6px;">Total Aprueban (Ganan)</td>
+          ${asigs.map(a => `<td style="font-size:12px;color:#10b981;">${gananCount[a.id]}</td>`).join('')}
+        </tr>
+        <tr style="background:#f3f4f6;font-weight:bold;">
+          <td colspan="2" style="text-align:right;font-size:12px;padding:8px 6px;">Total Reprueban (Pierden)</td>
+          ${asigs.map(a => `<td style="font-size:12px;color:#ef4444;">${pierdenCount[a.id]}</td>`).join('')}
+        </tr>
+      </tfoot></table></div></div>`;
       document.getElementById('p-res').innerHTML = html;
       badge('ok', 'Listo ✓');
     }
