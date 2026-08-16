@@ -147,15 +147,29 @@
 
       if (match) {
         matchedCount++;
-        const gradeInputs = row.querySelectorAll('select');
+        const fSelects = row.querySelectorAll('.f-select');
         
-        gradeInputs.forEach((el) => {
+        fSelects.forEach((fSelect) => {
           let valToSet = match.desempeño;
+          if (!valToSet) return;
+          
+          const toggle = fSelect.querySelector('.dropdown-toggle');
+          if (toggle && toggle.innerText.trim() === valToSet) {
+             return; 
+          }
 
-          if (valToSet !== null && el.value !== valToSet) {
-            el.value = valToSet;
-            el.dispatchEvent(new Event('input', { bubbles: true }));
-            el.dispatchEvent(new Event('change', { bubbles: true }));
+          const items = fSelect.querySelectorAll('.dropdown-item');
+          let targetItem = null;
+          items.forEach(item => {
+             if (item.innerText.trim() === valToSet) {
+                 targetItem = item;
+             }
+          });
+
+          if (targetItem) {
+            targetItem.click();
+            const innerSpan = targetItem.querySelector('span');
+            if (innerSpan) innerSpan.click(); // Just in case the listener is strictly on the span
             updatedCount++;
           }
         });
