@@ -1,0 +1,8 @@
+const fs = require('fs');
+const content = fs.readFileSync('g:\\Otros ordenadores\\Asus\\Desktop\\control notas\\index.html', 'utf8');
+const lines = content.split('\n');
+lines.forEach((line, idx) => {
+  if (line.includes('.sec ') || line.includes('.sec{') || line.includes('class="sec"')) {
+    console.log(`${idx + 1}: ${line.trim()}`);
+  }
+});
