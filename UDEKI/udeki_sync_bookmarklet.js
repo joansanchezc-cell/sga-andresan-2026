@@ -23,6 +23,14 @@
     return sum / valid.length;
   }
 
+  function defin(n70, n30) {
+    const p70 = prom(n70), p30 = prom(n30);
+    if (p70 === null && p30 === null) return null;
+    if (p70 === null) return p30;
+    if (p30 === null) return p70;
+    return (p70 * 0.7) + (p30 * 0.3);
+  }
+
   function getDesempeño(n) {
     if (n === null || n === undefined || isNaN(n)) return '';
     if (n === 0) return 'BJ';
@@ -37,7 +45,15 @@
       .replace(/\s+/g, " ").trim();
   }
 
-  const subjectSelect = document.querySelector('select[name="asignatura"]') || document.querySelector('select');
+  let subjectSelect = null;
+  for (const s of document.querySelectorAll('select')) {
+    const text = s.options[s.selectedIndex]?.text || "";
+    if (text !== "2026" && !text.toUpperCase().includes("PERIODO")) {
+      subjectSelect = s;
+      break;
+    }
+  }
+
   if (!subjectSelect) {
     alert("No se encontró el selector de asignaturas en Udeki.");
     return;
@@ -52,15 +68,13 @@
     return;
   }
 
-  const periodSelect = document.querySelector('select[name="periodo"]') || document.querySelectorAll('select')[1];
-  const selectedPeriodText = periodSelect ? periodSelect.options[periodSelect.selectedIndex]?.text || "" : "";
-  console.log("Selected Period in Udeki:", selectedPeriodText);
-
-  let localPeriod = 2;
-  if (selectedPeriodText.includes("PRIMER")) localPeriod = 1;
-  else if (selectedPeriodText.includes("SEGUNDO")) localPeriod = 2;
-  else if (selectedPeriodText.includes("TERCER")) localPeriod = 3;
-  else if (selectedPeriodText.includes("CUARTO")) localPeriod = 4;
+  let p_input = prompt("¿Qué periodo vas a subir (1, 2, 3 o 4)?", "2");
+  if (!p_input) return;
+  let localPeriod = parseInt(p_input);
+  if (isNaN(localPeriod) || localPeriod < 1 || localPeriod > 4) {
+    alert("Periodo inválido.");
+    return;
+  }
 
   console.log(`Using Local Subject ID: ${localAsigId}, Period: ${localPeriod}`);
 
@@ -84,7 +98,6 @@
       (notasEst[n.estudiante_id] = notasEst[n.estudiante_id] || []).push(n);
     });
 
-    // Calculate both 70% and 30% grades for each student
     const localGrades = {};
     estudiantes.forEach(est => {
       const mis_n = notasEst[est.id] || [];
@@ -95,13 +108,10 @@
         const n = mis_n.find(n => n.actividad_id === a.id); return n ? Number(n.valor) : null;
       });
       
-      const prom70 = prom(v70);
-      const prom30 = prom(v30);
-
+      const d = defin(v70, v30);
       localGrades[cleanName(est.nombre_completo)] = {
         name: est.nombre_completo,
-        desempeño70: getDesempeño(prom70),
-        desempeño30: getDesempeño(prom30)
+        desempeño: getDesempeño(d)
       };
     });
 
@@ -110,23 +120,6 @@
       alert("No se encontró la tabla de estudiantes en Udeki.");
       return;
     }
-
-    // Map column index to performance type based on header text
-    // The table headers starting from index 2 (skip # and Student Name)
-    const headersElements = Array.from(table.querySelectorAll('thead th'));
-    const columnMapping = []; // will contain '70' or '30' for each column index
-    
-    // We start from the 3rd header (index 2)
-    for (let i = 2; i < headersElements.length; i++) {
-      const text = headersElements[i].innerText.toLowerCase();
-      // If header text contains "evalu" or "eva", it is mapped to 30% Evaluándonos
-      if (text.includes("evalu") || text.includes("eva") || text.includes("30%")) {
-        columnMapping.push('30');
-      } else {
-        columnMapping.push('70');
-      }
-    }
-    console.log("Column Mapping (70% Saber/Hacer vs 30% Evaluándonos):", columnMapping);
 
     const rows = Array.from(table.querySelectorAll('tbody tr'));
     console.log(`Found ${rows.length} rows in Udeki table.`);
@@ -154,12 +147,9 @@
         matchedCount++;
         const selectElements = row.querySelectorAll('select');
         
-        selectElements.forEach((selectEl, colIdx) => {
-          const colType = columnMapping[colIdx] || '70'; // default to 70 if out of range
-          const targetDesempeño = colType === '30' ? match.desempeño30 : match.desempeño70;
-
-          if (targetDesempeño && selectEl.value !== targetDesempeño) {
-            selectEl.value = targetDesempeño;
+        selectElements.forEach((selectEl) => {
+          if (match.desempeño && selectEl.value !== match.desempeño) {
+            selectEl.value = match.desempeño;
             selectEl.dispatchEvent(new Event('change', { bubbles: true }));
             updatedCount++;
           }

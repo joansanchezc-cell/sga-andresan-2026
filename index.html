@@ -1170,6 +1170,15 @@
         color: #121E33 !important;
       }
 
+      /* Fix dark-on-dark text contrast for sticky table columns on mobile */
+      .overflow-x table thead th:nth-child(1),
+      .overflow-x table tbody td:nth-child(1),
+      .overflow-x table thead th:nth-child(2),
+      .overflow-x table tbody td:nth-child(2) {
+        background: #f8fafc !important;
+        color: #1e293b !important;
+      }
+
       .app-header {
         background: #fff !important;
         border-bottom: none !important;
@@ -1944,6 +1953,21 @@
           <div class="card card-res">
             <h3>Selecciona un grupo</h3>
             <div id="pills-res"></div>
+            
+            <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 15px; margin-top: 15px;">
+              <h4 style="margin-top:0; margin-bottom:12px; font-size:14px; color:#374151; font-weight:700;">Acciones de Sincronización y Respaldo</h4>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn" onclick="rellenarNotasVacias()" style="background:#10b981; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                  ✏️ Rellenar Notas Vacías
+                </button>
+                <button class="btn" onclick="importarEvaluandonos()" style="background:#f59e0b; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                  📥 Importar Matemáticas (Evaluándonos)
+                </button>
+                <button class="btn" onclick="descargarRespaldoCompleto()" style="background:#3b82f6; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                  💾 Descargar Respaldo
+                </button>
+              </div>
+            </div>
           </div>
           <div id="p-res"></div>
         </div>
@@ -4504,8 +4528,6 @@
                 const val = nMap[`${est.id}_${act.id}`];
                 if (val === undefined || val === null) {
                   rows.push({ Grado: grado, Estudiante: est.nombre_completo, Asignatura: asig.nombre, Actividad: act.nombre, Estado: 'Sin nota' });
-                } else if (val === 0) {
-                  rows.push({ Grado: grado, Estudiante: est.nombre_completo, Asignatura: asig.nombre, Actividad: act.nombre, Estado: 'NP (Nota 0)' });
                 }
               });
             });
@@ -4559,7 +4581,6 @@
             acts.forEach(act => {
               const val = nMap[`${est.id}_${act.id}`];
               if (val === undefined || val === null) actsP.push({ act, tipo: 'sin-nota' });
-              else if (val === 0) actsP.push({ act, tipo: 'np' });
             });
             if (actsP.length) pendsPorAsig.push({ asig, actsP });
           });
@@ -4855,7 +4876,7 @@ Le informamos que su acudido tiene actividades pendientes de entrega o registrad
             const acts = actsByAsig[asig.id] || [];
             acts.forEach(act => {
               const val = nMap[`${est.id}_${act.id}`];
-              if (val === undefined || val === null || val === 0) total++;
+              if (val === undefined || val === null) total++;
             });
           });
           return { est, total };
@@ -5204,6 +5225,376 @@ Le informamos que su acudido tiene actividades pendientes de entrega o registrad
     }
 
 
+
+    async function rellenarNotasVacias() {
+      let p_input = prompt('¿Para qué periodo deseas rellenar las notas vacías? (1, 2, 3 o 4)', periodo);
+      if (!p_input) return;
+      let p_rellenar = parseInt(p_input);
+      if (isNaN(p_rellenar) || p_rellenar < 1 || p_rellenar > 4) {
+        alert("Periodo inválido");
+        return;
+      }
+
+      badge('wait', 'Analizando notas vacías...');
+      try {
+        const [ra, re, rac] = await Promise.all([
+          sb.from('asignaturas').select('*'),
+          sb.from('estudiantes').select('*').eq('año', anio).order('nombre_completo'),
+          sb.from('actividades').select('*').eq('periodo', p_rellenar)
+        ]);
+
+        const asigs = (ra.data || []).filter(a => !a.año || a.año === anio);
+        const ests = re.data || [];
+        const acts = rac.data || [];
+
+        if (ests.length === 0 || acts.length === 0) {
+          badge('no', 'No hay estudiantes o actividades.');
+          alert('No hay estudiantes o actividades en este periodo.');
+          return;
+        }
+
+        const { data: notasExistentes } = await sb.from('notas')
+          .select('estudiante_id, actividad_id')
+          .eq('año', anio)
+          .eq('periodo', p_rellenar);
+
+        const notaSet = new Set((notasExistentes || []).map(n => `${n.estudiante_id}_${n.actividad_id}`));
+
+        // Group empty grades per student
+        const estudiantesConVacios = [];
+        for (const est of ests) {
+          const asigIds = asigs.filter(a => a.grado === est.grado).map(a => a.id);
+          const estActs = acts.filter(a => asigIds.includes(a.asignatura_id));
+          const vacias = [];
+
+          for (const act of estActs) {
+            const key = `${est.id}_${act.id}`;
+            if (!notaSet.has(key)) {
+              vacias.push({
+                estudiante_id: est.id,
+                actividad_id: act.id,
+                asignatura_id: act.asignatura_id,
+                periodo: p_rellenar,
+                año: anio
+              });
+            }
+          }
+
+          if (vacias.length > 0) {
+            estudiantesConVacios.push({
+              estudiante: est,
+              vacias: vacias
+            });
+          }
+        }
+
+        badge('ok', 'Análisis completo ✓');
+
+        if (estudiantesConVacios.length === 0) {
+          alert('¡Todos los estudiantes ya tienen todas sus notas registradas!');
+          return;
+        }
+
+        // Render modal
+        let modal = document.getElementById('modal-rellenar-notas');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'modal-rellenar-notas';
+          document.body.appendChild(modal);
+        }
+
+        modal.innerHTML = `
+          <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(5px);z-index:10000;display:flex;align-items:center;justify-content:center;font-family:inherit;">
+            <div style="background:white;width:90%;max-width:550px;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.2);overflow:hidden;animation:fadeIn 0.2s ease;display:flex;flex-direction:column;max-height:85vh;">
+              <!-- Header -->
+              <div style="background:#10b981;color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+                <h3 style="margin:0;font-size:18px;font-weight:600;">✏️ Rellenar Notas Vacías</h3>
+                <button onclick="document.getElementById('modal-rellenar-notas').remove()" style="background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:0;line-height:1;">&times;</button>
+              </div>
+              
+              <!-- Content -->
+              <div style="padding:20px;overflow-y:auto;flex:1;text-align:left;">
+                <p style="margin-top:0;font-size:14px;color:#4b5563;line-height:1.5;">
+                  Selecciona a qué estudiantes deseas rellenar sus calificaciones vacías e ingresa la nota que les asignarás.
+                </p>
+                
+                <!-- Nota Input -->
+                <div style="margin-bottom:20px;background:#f3f4f6;padding:12px;border-radius:8px;display:flex;align-items:center;gap:12px;">
+                  <label style="font-weight:600;font-size:14px;color:#374151;">Nota a asignar (1.0 - 10.0):</label>
+                  <input type="number" id="input-nota-relleno" value="6.0" min="1.0" max="10.0" step="0.1" style="width:70px;padding:6px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;text-align:center;font-weight:700;">
+                </div>
+                
+                <!-- Select All Checkbox -->
+                <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px;">
+                  <input type="checkbox" id="chk-rellenar-todos" checked style="width:16px;height:16px;cursor:pointer;">
+                  <label for="chk-rellenar-todos" style="font-weight:700;font-size:14px;cursor:pointer;color:#1f2937;">Seleccionar Todos (${estudiantesConVacios.length})</label>
+                </div>
+                
+                <!-- Students List -->
+                <div style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;" id="lista-estudiantes-relleno">
+                  ${estudiantesConVacios.map((item, idx) => `
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#f9fafb;border:1px solid #f3f4f6;border-radius:8px;">
+                      <div style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;" onclick="const chk=document.getElementById('chk-est-${idx}');chk.checked=!chk.checked;">
+                        <input type="checkbox" id="chk-est-${idx}" class="chk-estudiante-rellenar" data-idx="${idx}" checked style="width:16px;height:16px;cursor:pointer;" onclick="event.stopPropagation();">
+                        <div>
+                          <div style="font-weight:600;font-size:14px;color:#1f2937;">${item.estudiante.nombre_completo}</div>
+                          <div style="font-size:11px;color:#6b7280;margin-top:2px;">Grado: ${item.estudiante.grado}</div>
+                        </div>
+                      </div>
+                      <span style="background:#fee2e2;color:#ef4444;font-size:11px;font-weight:700;padding:4px 8px;border-radius:12px;white-space:nowrap;">
+                        ${item.vacias.length} vacías
+                      </span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              
+              <!-- Footer Buttons -->
+              <div style="background:#f9fafb;padding:16px 20px;display:flex;justify-content:end;gap:12px;border-top:1px solid #e5e7eb;">
+                <button onclick="document.getElementById('modal-rellenar-notas').remove()" style="background:#e5e7eb;color:#374151;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;">Cancelar</button>
+                <button id="btn-ejecutar-relleno" style="background:#10b981;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;gap:6px;">Confirmar y Rellenar</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Handle select all logic
+        const chkAll = modal.querySelector('#chk-rellenar-todos');
+        const chks = modal.querySelectorAll('.chk-estudiante-rellenar');
+        chkAll.addEventListener('change', () => {
+          chks.forEach(c => c.checked = chkAll.checked);
+        });
+
+        // Handle confirm action
+        modal.querySelector('#btn-ejecutar-relleno').addEventListener('click', async () => {
+          const valNota = parseFloat(modal.querySelector('#input-nota-relleno').value);
+          if (isNaN(valNota) || valNota < 1.0 || valNota > 10.0) {
+            alert('Por favor ingresa una nota válida entre 1.0 y 10.0');
+            return;
+          }
+
+          const seleccionados = [];
+          chks.forEach(chk => {
+            if (chk.checked) {
+              const idx = parseInt(chk.dataset.idx);
+              seleccionados.push(estudiantesConVacios[idx]);
+            }
+          });
+
+          if (seleccionados.length === 0) {
+            alert('Debes seleccionar al menos un estudiante.');
+            return;
+          }
+
+          modal.remove();
+          badge('wait', 'Guardando notas rellenadas...');
+
+          const notasAInsertar = [];
+          seleccionados.forEach(item => {
+            item.vacias.forEach(v => {
+              notasAInsertar.push({
+                estudiante_id: v.estudiante_id,
+                actividad_id: v.actividad_id,
+                asignatura_id: v.asignatura_id,
+                valor: valNota,
+                periodo: v.periodo,
+                año: v.año
+              });
+            });
+          });
+
+          // Guardar en Supabase
+          let guardados = 0, errores = 0;
+          const batchSize = 100;
+          for (let i = 0; i < notasAInsertar.length; i += batchSize) {
+            const batch = notasAInsertar.slice(i, i + batchSize);
+            const { error } = await sb.from('notas').insert(batch);
+            if (error) {
+              console.error(error);
+              errores += batch.length;
+            } else {
+              guardados += batch.length;
+            }
+          }
+
+          if (errores > 0) {
+            badge('no', 'Error al rellenar');
+            alert(`Completado con errores: se guardaron ${guardados} notas, fallaron ${errores}.`);
+          } else {
+            badge('ok', 'Notas rellenadas ✓');
+            alert(`¡Se rellenaron con éxito ${guardados} calificaciones con la nota ${valNota}!`);
+            await init();
+          }
+        });
+
+      } catch (e) {
+        console.error(e);
+        badge('no', 'Error');
+        alert('Ocurrió un error al procesar el rellenado: ' + e.message);
+      }
+    }
+
+    async function importarEvaluandonos() {
+      if (!confirm(`¿Deseas importar las calificaciones de la prueba "Evaluándonos" (Periodo ${periodo}) para tus asignaturas de Matemáticas?`)) return;
+
+      badge('wait', 'Importando notas...');
+      
+      const EV_URL = "https://txnecdeccianklqqyrav.supabase.co";
+      const EV_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4bmVjZGVjY2lhbmtscXF5cmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MDQzMDIsImV4cCI6MjA5MTk4MDMwMn0.e2ybyt2Y8yHsZwRC-MZqi_qK525-CWpk-huQcQy-icM"; // Corrected key from CONFIG.js
+
+      try {
+        const fetchTable = async (table, query = "") => {
+          const r = await fetch(`${EV_URL}/rest/v1/${table}?${query}`, {
+            headers: { 'apikey': EV_KEY, 'Authorization': 'Bearer ' + EV_KEY }
+          });
+          return r.json();
+        };
+
+        const [evEsts, evNotas, myEsts, myActs, myAsigs] = await Promise.all([
+          fetchTable('estudiantes', `año=eq.${anio}`),
+          fetchTable('eval_estudiantes_notas'),
+          sb.from('estudiantes').select('*').eq('año', anio),
+          sb.from('actividades').select('*').eq('periodo', periodo),
+          sb.from('asignaturas').select('*')
+        ]);
+
+        const evMathExams = evNotas.filter(n => n.periodo === periodo && n.porcentaje !== null);
+        if (evMathExams.length === 0) {
+          badge('no', 'Sin datos en Evaluándonos');
+          alert('No se encontraron exámenes con porcentaje en Evaluándonos para el periodo ' + periodo);
+          return;
+        }
+
+        const activeAsigs = (myAsigs.data || []).filter(a => a.nombre.toLowerCase().includes("matemát"));
+        const activeActs = (myActs.data || []).filter(act => {
+          const as = activeAsigs.find(a => a.id === act.asignatura_id);
+          return as && (act.nombre.toLowerCase().includes("evalua") || act.nombre.trim() === `E${periodo}`);
+        });
+
+        if (activeActs.length === 0) {
+          badge('no', 'Actividad no encontrada');
+          alert('No se encontró una actividad con el nombre "Evaluándonos" o "E' + periodo + '" en tus asignaturas de matemáticas en este periodo.');
+          return;
+        }
+
+        function cleanName(n) {
+          return n.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+        }
+
+        const localEstMap = {};
+        (myEsts.data || []).forEach(e => {
+          localEstMap[cleanName(e.nombre_completo)] = e.id;
+        });
+
+        const evEstMap = {};
+        evEsts.forEach(e => {
+          evEstMap[e.id] = cleanName(e.nombre_completo);
+        });
+
+        let guardados = 0;
+        let errores = 0;
+
+        for (const evn of evMathExams) {
+          const evStudentName = evEstMap[evn.estudiante_id];
+          if (!evStudentName) continue;
+
+          const localStudentId = localEstMap[evStudentName];
+          if (!localStudentId) continue;
+
+          const localStudent = (myEsts.data || []).find(e => e.id === localStudentId);
+          const destAct = activeActs.find(act => {
+            const as = activeAsigs.find(a => a.id === act.asignatura_id);
+            return as && as.grado === localStudent.grado;
+          });
+
+          if (!destAct) continue;
+
+          const decimalGrade = Number((evn.porcentaje / 10).toFixed(1));
+
+          const { data: exist } = await sb.from('notas')
+            .select('id')
+            .eq('estudiante_id', localStudentId)
+            .eq('actividad_id', destAct.id)
+            .eq('año', anio)
+            .eq('periodo', periodo)
+            .maybeSingle();
+
+          if (exist) {
+            const { error } = await sb.from('notas')
+              .update({ valor: decimalGrade })
+              .eq('id', exist.id);
+            if (error) errores++; else guardados++;
+          } else {
+            const { error } = await sb.from('notas')
+              .insert({
+                estudiante_id: localStudentId,
+                actividad_id: destAct.id,
+                asignatura_id: destAct.asignatura_id,
+                valor: decimalGrade,
+                periodo: periodo,
+                año: anio
+              });
+            if (error) errores++; else guardados++;
+          }
+        }
+
+        if (errores > 0) {
+          badge('no', 'Error al guardar notas');
+          alert(`Importación completada con errores: se guardaron ${guardados} notas, fallaron ${errores}.`);
+        } else {
+          badge('ok', 'Importado con éxito ✓');
+          alert(`¡Importación completada con éxito!\n\nSe importaron ${guardados} notas desde la prueba "Evaluándonos" a tus asignaturas de matemáticas.`);
+          await init();
+        }
+
+      } catch (e) {
+        console.error(e);
+        badge('no', 'Error');
+        alert('Ocurrió un error al importar las notas: ' + e.message);
+      }
+    }
+
+    async function descargarRespaldoCompleto() {
+      if (!confirm('¿Deseas descargar una copia de seguridad completa de todos los datos (estudiantes, actividades, notas, asistencia y horarios) de la base de datos?')) return;
+
+      badge('wait', 'Preparando copia de seguridad...');
+      try {
+        const [ra, re, rac, rn, ras, rh] = await Promise.all([
+          sb.from('asignaturas').select('*'),
+          sb.from('estudiantes').select('*').eq('año', anio),
+          sb.from('actividades').select('*'),
+          sb.from('notas').select('*').eq('año', anio),
+          sb.from('asistencia').select('*'),
+          sb.from('horarios').select('*')
+        ]);
+
+        const backupData = {
+          fecha_respaldo: new Date().toISOString(),
+          año_lectivo: anio,
+          asignaturas: ra.data || [],
+          estudiantes: re.data || [],
+          actividades: rac.data || [],
+          notas: rn.data || [],
+          asistencia: ras.data || [],
+          horarios: rh.data || []
+        };
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `Respaldo_ControlNotas_${anio}_Periodo${periodo}_${new Date().toISOString().split('T')[0]}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+
+        badge('ok', 'Respaldo descargado ✓');
+        alert('Copia de seguridad descargada correctamente en tu computadora.');
+      } catch (e) {
+        console.error(e);
+        badge('no', 'Error');
+        alert('Error al descargar la copia de seguridad: ' + e.message);
+      }
+    }
 
     // Registrar Service Worker
     if ('serviceWorker' in navigator) {
