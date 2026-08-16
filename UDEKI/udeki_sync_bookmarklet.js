@@ -113,14 +113,13 @@
       };
     });
 
-    const table = document.querySelector('table');
-    if (!table) {
-      alert("No se encontró la tabla de estudiantes en Udeki.");
+    let rows = Array.from(document.querySelectorAll('tr')).filter(r => r.querySelectorAll('td').length >= 2);
+    
+    if (rows.length === 0) {
+      alert("No se encontraron filas de estudiantes en la página (no hay 'tr' con al menos 2 'td').");
       return;
     }
-
-    const rows = Array.from(table.querySelectorAll('tbody tr'));
-    console.log(`Found ${rows.length} rows in Udeki table.`);
+    console.log(`Found ${rows.length} valid student rows in Udeki.`);
 
     let matchedCount = 0;
     let updatedCount = 0;
