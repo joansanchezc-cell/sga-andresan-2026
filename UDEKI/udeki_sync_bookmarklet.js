@@ -129,7 +129,15 @@
     let updatedCount = 0;
 
     const processRows = async () => {
-      for (const row of rows) {
+      // Find the maximum number of rows to avoid infinite loops, but re-query every time
+      let maxRows = document.querySelectorAll('tbody tr').length;
+      
+      for (let i = 0; i < maxRows; i++) {
+        // Re-query the rows inside the loop because Vue detaches the DOM on re-render!
+        const currentRows = Array.from(document.querySelectorAll('tbody tr')).filter(r => r.querySelectorAll('td').length >= 2);
+        if (i >= currentRows.length) break;
+        
+        const row = currentRows[i];
         const cells = row.querySelectorAll('td');
         if (cells.length < 2) continue;
         
@@ -139,33 +147,48 @@
         let match = localGrades[cleanUName];
         if (!match) {
           const keys = Object.keys(localGrades);
-          const bestKey = keys.find(k => k.includes(cleanUName) || cleanUName.includes(k) || k.substring(0, 15) === cleanUName.substring(0, 15));
-          if (bestKey) {
-            match = localGrades[bestKey];
-          }
+          const uWords = cleanUName.split(' ');
+          // Better fuzzy match: match first two surnames and first name
+          const bestKey = keys.find(k => {
+             const kWords = k.split(' ');
+             if (uWords.length >= 3 && kWords.length >= 3) {
+                return uWords[0] === kWords[0] && uWords[1] === kWords[1] && uWords[2] === kWords[2];
+             }
+             if (uWords.length >= 2 && kWords.length >= 2) {
+                return uWords[0] === kWords[0] && uWords[1] === kWords[1];
+             }
+             return false;
+          });
+          if (bestKey) match = localGrades[bestKey];
         }
 
         if (match) {
           matchedCount++;
+          // Wait briefly in case the row just re-rendered and is settling
+          await new Promise(r => setTimeout(r, 20));
           const fSelects = row.querySelectorAll('.f-select');
           
           for (const fSelect of fSelects) {
-            let valToSet = match.desempeño;
+            let valToSet = match.desempeño || match.desempeo; 
             if (!valToSet) continue;
             
             const toggle = fSelect.querySelector('.dropdown-toggle');
+            
             let currentVal = "";
-            const toggleSpan = toggle ? toggle.querySelector('span') : null;
+            const toggleSpan = toggle ? toggle.querySelector('span.badge') : null;
             if (toggleSpan) {
-               currentVal = toggleSpan.innerText.trim();
+              currentVal = toggleSpan.innerText.trim();
             } else if (toggle) {
-               currentVal = toggle.innerText.trim();
+              currentVal = toggle.innerText.trim();
             }
+            
             if (currentVal === valToSet) continue;
 
+            // Open the dropdown
             if (toggle) {
                toggle.click();
-               await new Promise(r => setTimeout(r, 80));
+               // Wait for Vue to render the DOM menu
+               await new Promise(r => setTimeout(r, 60));
             }
 
             const items = fSelect.querySelectorAll('.dropdown-item');
@@ -181,14 +204,17 @@
               const innerSpan = targetItem.querySelector('span');
               if (innerSpan) innerSpan.click();
               updatedCount++;
+              
+              // CRITICAL: Wait for Vue to process the click and re-render the table BEFORE moving to the next element
+              await new Promise(r => setTimeout(r, 200));
             } else {
+              // Close it if we couldn't find the item
               if (toggle) toggle.click();
             }
-            await new Promise(r => setTimeout(r, 40));
           }
         }
       }
-      alert(`Sincronización completada:\n- Alumnos emparejados: ${matchedCount}/${rows.length}\n- Campos de notas actualizados: ${updatedCount}\n\nRevisa los cambios y haz clic en "Guardar Calificaciones".`);
+      alert(`Sincronización completada:\n- Alumnos emparejados: ${matchedCount}/${maxRows}\n- Campos de notas actualizados: ${updatedCount}\n\nRevisa los cambios y haz clic en "Guardar Calificaciones".`);
     };
 
     await processRows();
