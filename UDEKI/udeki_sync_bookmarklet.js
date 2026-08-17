@@ -17,10 +17,10 @@
 
   // Helper functions
   function prom(arr) {
-    const valid = arr.filter(x => x !== null && x !== undefined && !isNaN(x));
-    if (valid.length === 0) return null;
-    const sum = valid.reduce((acc, x) => acc + x, 0);
-    return sum / valid.length;
+    if (arr.length === 0) return null;
+    const mapped = arr.map(x => (x === null || x === undefined || isNaN(x)) ? 0 : x);
+    const sum = mapped.reduce((acc, x) => acc + x, 0);
+    return sum / mapped.length;
   }
 
   function defin(n70, n30) {
@@ -117,107 +117,134 @@
       };
     });
 
-    let rows = Array.from(document.querySelectorAll('tr')).filter(r => r.querySelectorAll('td').length >= 2);
+    console.log("=== DICCIONARIO DE NOTAS CALCULADO ===", JSON.parse(JSON.stringify(localGrades)));
+
+    let initialRows = Array.from(document.querySelectorAll('tbody tr')).filter(r => r.querySelectorAll('td').length >= 2);
     
-    if (rows.length === 0) {
-      alert("No se encontraron filas de estudiantes en la página (no hay 'tr' con al menos 2 'td').");
+    if (initialRows.length === 0) {
+      alert("No se encontraron filas de estudiantes en la página (no hay 'tr' con al menos 2 'td' dentro de un tbody).");
       return;
     }
-    console.log(`Found ${rows.length} valid student rows in Udeki.`);
+    console.log(`Found ${initialRows.length} valid student rows in Udeki.`);
 
+    let pendingUpdates = [];
     let matchedCount = 0;
     let updatedCount = 0;
 
-    const processRows = async () => {
-      // Find the maximum number of rows to avoid infinite loops, but re-query every time
-      let maxRows = document.querySelectorAll('tbody tr').length;
-      
-      for (let i = 0; i < maxRows; i++) {
-        // Re-query the rows inside the loop because Vue detaches the DOM on re-render!
-        const currentRows = Array.from(document.querySelectorAll('tbody tr')).filter(r => r.querySelectorAll('td').length >= 2);
-        if (i >= currentRows.length) break;
-        
-        const row = currentRows[i];
-        const cells = row.querySelectorAll('td');
-        if (cells.length < 2) continue;
-        
-        const udekiStudentName = cells[1].innerText.trim();
+    // Fase 1: Recolectar a quiénes hay que actualizarle notas
+    for (const row of initialRows) {
+        const udekiStudentName = row.querySelectorAll('td')[1].innerText.trim();
         const cleanUName = cleanName(udekiStudentName);
 
         let match = localGrades[cleanUName];
         if (!match) {
-          const keys = Object.keys(localGrades);
-          const uWords = cleanUName.split(' ');
-          // Better fuzzy match: match first two surnames and first name
-          const bestKey = keys.find(k => {
-             const kWords = k.split(' ');
-             if (uWords.length >= 3 && kWords.length >= 3) {
-                return uWords[0] === kWords[0] && uWords[1] === kWords[1] && uWords[2] === kWords[2];
-             }
-             if (uWords.length >= 2 && kWords.length >= 2) {
-                return uWords[0] === kWords[0] && uWords[1] === kWords[1];
-             }
-             return false;
-          });
-          if (bestKey) match = localGrades[bestKey];
+            // Fuzzy matching seguro basado en intersección
+            const uWords = cleanUName.split(' ').filter(w => w.length > 2);
+            let bestMatches = [];
+            let maxScore = 0;
+
+            for (const key of Object.keys(localGrades)) {
+                const kWords = key.split(' ').filter(w => w.length > 2);
+                let score = 0;
+                for (const uw of uWords) {
+                    if (kWords.includes(uw)) score++;
+                }
+                if (score > 0) {
+                    if (score > maxScore) {
+                        maxScore = score;
+                        bestMatches = [key];
+                    } else if (score === maxScore) {
+                        bestMatches.push(key);
+                    }
+                }
+            }
+
+            if (bestMatches.length === 1 && maxScore >= 2) {
+                match = localGrades[bestMatches[0]];
+                console.log(`Fuzzy match: '${udekiStudentName}' -> '${bestMatches[0]}' (score: ${maxScore})`);
+            } else if (bestMatches.length > 1 && maxScore >= 2) {
+                console.warn(`Ambigüedad en fuzzy match para '${udekiStudentName}': demasiados empates con score ${maxScore}`, bestMatches);
+            }
         }
 
         if (match) {
-          matchedCount++;
-          // Wait briefly in case the row just re-rendered and is settling
-          await new Promise(r => setTimeout(r, 20));
-          const fSelects = row.querySelectorAll('.f-select');
-          
-          for (const fSelect of fSelects) {
-            let valToSet = match.desempeño || match.desempeo; 
-            if (!valToSet) continue;
-            
-            const toggle = fSelect.querySelector('.dropdown-toggle');
-            
-            let currentVal = "";
-            const toggleSpan = toggle ? toggle.querySelector('span.badge') : null;
-            if (toggleSpan) {
-              currentVal = toggleSpan.innerText.trim();
-            } else if (toggle) {
-              currentVal = toggle.innerText.trim();
-            }
-            
-            if (currentVal === valToSet) continue;
-
-            // Open the dropdown
-            if (toggle) {
-               toggle.click();
-               // Wait for Vue to render the DOM menu
-               await new Promise(r => setTimeout(r, 60));
-            }
-
-            const items = fSelect.querySelectorAll('.dropdown-item');
-            let targetItem = null;
-            items.forEach(item => {
-               if (item.innerText.trim() === valToSet) {
-                   targetItem = item;
-               }
-            });
-
-            if (targetItem) {
-              targetItem.click();
-              const innerSpan = targetItem.querySelector('span');
-              if (innerSpan) innerSpan.click();
-              updatedCount++;
-              
-              // CRITICAL: Wait for Vue to process the click and re-render the table BEFORE moving to the next element
-              await new Promise(r => setTimeout(r, 200));
-            } else {
-              // Close it if we couldn't find the item
-              if (toggle) toggle.click();
-            }
-          }
+            pendingUpdates.push({ name: udekiStudentName, match: match });
+            matchedCount++;
         }
-      }
-      alert(`Sincronización completada:\n- Alumnos emparejados: ${matchedCount}/${maxRows}\n- Campos de notas actualizados: ${updatedCount}\n\nRevisa los cambios y haz clic en "Guardar Calificaciones".`);
+    }
+
+    // Fase 2: Aplicar actualizaciones re-consultando el DOM
+    const processUpdates = async () => {
+        for (const update of pendingUpdates) {
+            let valToSet = update.match.desempeño || update.match.desempeo;
+            if (!valToSet) continue;
+
+            // Encontrar primero cuántos selects tiene este estudiante re-consultando la fila
+            const getFSelectCount = () => {
+                const r = Array.from(document.querySelectorAll('tbody tr')).find(tr => {
+                    const cells = tr.querySelectorAll('td');
+                    return cells.length >= 2 && cells[1].innerText.trim() === update.name;
+                });
+                return r ? r.querySelectorAll('.f-select').length : 0;
+            };
+
+            const selectCount = getFSelectCount();
+            if (selectCount === 0) continue;
+
+            for (let j = 0; j < selectCount; j++) {
+                // Volver a buscar la fila fresca, ¡porque Vue pudo haber desmontado la tabla!
+                const freshRow = Array.from(document.querySelectorAll('tbody tr')).find(tr => {
+                    const cells = tr.querySelectorAll('td');
+                    return cells.length >= 2 && cells[1].innerText.trim() === update.name;
+                });
+                if (!freshRow) break;
+
+                const freshSelects = freshRow.querySelectorAll('.f-select');
+                if (j >= freshSelects.length) break;
+
+                const fSelect = freshSelects[j];
+                const toggle = fSelect.querySelector('.dropdown-toggle');
+                
+                let currentVal = "";
+                const toggleSpan = toggle ? toggle.querySelector('span.badge') : null;
+                if (toggleSpan) {
+                    currentVal = toggleSpan.innerText.trim();
+                } else if (toggle) {
+                    currentVal = toggle.innerText.trim();
+                }
+
+                if (currentVal === valToSet) continue;
+
+                if (toggle) {
+                    toggle.click();
+                    await new Promise(r => setTimeout(r, 60)); // Esperar al render del dropdown
+                }
+
+                const items = fSelect.querySelectorAll('.dropdown-item');
+                let targetItem = null;
+                items.forEach(item => {
+                    if (item.innerText.trim() === valToSet) {
+                        targetItem = item;
+                    }
+                });
+
+                if (targetItem) {
+                    targetItem.click();
+                    const innerSpan = targetItem.querySelector('span');
+                    if (innerSpan) innerSpan.click();
+                    updatedCount++;
+                    
+                    // CRÍTICO: Esperar a que Vue procese el cambio y renderice antes del siguiente clic
+                    await new Promise(r => setTimeout(r, 200));
+                } else {
+                    if (toggle) toggle.click(); // Cerrar si no encontró la nota
+                }
+            }
+        }
+        alert(`Sincronización completada:\n- Alumnos emparejados: ${matchedCount}/${initialRows.length}\n- Campos de notas actualizados: ${updatedCount}\n\nRevisa los cambios y haz clic en "Guardar Calificaciones".`);
     };
 
-    await processRows();
+    await processUpdates();
   } catch (e) {
     console.error("Sync Error:", e);
     alert(`Error al sincronizar: ${e.message}`);
