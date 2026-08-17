@@ -175,28 +175,34 @@
 
     // Fase 2: Aplicar actualizaciones re-consultando el DOM
     const processUpdates = async () => {
+        // Función auxiliar para esperar a que Vue re-renderice la fila
+        const waitForRow = async (name) => {
+            for (let k = 0; k < 30; k++) {
+                const rows = document.querySelectorAll('tbody tr');
+                if (rows.length > 0) {
+                    const r = Array.from(rows).find(tr => {
+                        const cells = tr.querySelectorAll('td');
+                        return cells.length >= 2 && cells[1].innerText.trim() === name;
+                    });
+                    if (r) return r;
+                }
+                await new Promise(res => setTimeout(res, 100));
+            }
+            return null;
+        };
+
         for (const update of pendingUpdates) {
             let valToSet = update.match.desempeño || update.match.desempeo;
             if (!valToSet) continue;
 
-            // Encontrar primero cuántos selects tiene este estudiante re-consultando la fila
-            const getFSelectCount = () => {
-                const r = Array.from(document.querySelectorAll('tbody tr')).find(tr => {
-                    const cells = tr.querySelectorAll('td');
-                    return cells.length >= 2 && cells[1].innerText.trim() === update.name;
-                });
-                return r ? r.querySelectorAll('.f-select').length : 0;
-            };
-
-            const selectCount = getFSelectCount();
+            const initialRow = await waitForRow(update.name);
+            if (!initialRow) continue;
+            
+            const selectCount = initialRow.querySelectorAll('.f-select').length;
             if (selectCount === 0) continue;
 
             for (let j = 0; j < selectCount; j++) {
-                // Volver a buscar la fila fresca, ¡porque Vue pudo haber desmontado la tabla!
-                const freshRow = Array.from(document.querySelectorAll('tbody tr')).find(tr => {
-                    const cells = tr.querySelectorAll('td');
-                    return cells.length >= 2 && cells[1].innerText.trim() === update.name;
-                });
+                const freshRow = await waitForRow(update.name);
                 if (!freshRow) break;
 
                 const freshSelects = freshRow.querySelectorAll('.f-select');
@@ -217,7 +223,15 @@
 
                 if (toggle) {
                     toggle.click();
-                    await new Promise(r => setTimeout(r, 60)); // Esperar al render del dropdown
+                    // Esperar a que el dropdown aparezca en el DOM de Vue
+                    let itemsFound = false;
+                    for(let k = 0; k < 15; k++) {
+                        if (fSelect.querySelectorAll('.dropdown-item').length > 0) {
+                            itemsFound = true;
+                            break;
+                        }
+                        await new Promise(res => setTimeout(res, 50));
+                    }
                 }
 
                 const items = fSelect.querySelectorAll('.dropdown-item');
@@ -234,10 +248,11 @@
                     if (innerSpan) innerSpan.click();
                     updatedCount++;
                     
-                    // CRÍTICO: Esperar a que Vue procese el cambio y renderice antes del siguiente clic
-                    await new Promise(r => setTimeout(r, 200));
+                    // CRÍTICO: Esperar a que Vue procese el cambio y renderice la tabla
+                    await new Promise(r => setTimeout(r, 400));
                 } else {
                     if (toggle) toggle.click(); // Cerrar si no encontró la nota
+                    await new Promise(r => setTimeout(r, 100));
                 }
             }
         }
